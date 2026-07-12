@@ -1,0 +1,119 @@
+.address-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  font-family: 'Assistant', sans-serif;
+  color: #282c3f;
+}
+
+.address-content {
+  display: flex;
+  gap: 30px;
+}
+
+.address-left {
+  flex: 2;
+}
+
+.address-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.address-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.add-new-btn {
+  background: white;
+  color: #ff3f6c;
+  border: 1px solid #ff3f6c;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.address-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.address-card {
+  display: flex;
+  border: 1px solid #eaeaec;
+  border-radius: 4px;
+  padding: 20px;
+  cursor: pointer;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.address-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.address-card.selected {
+  border-color: #20bd99;
+  background-color: #f4fdfb;
+}
+
+.address-radio {
+  margin-right: 15px;
+}
+
+.address-details {
+  flex: 1;
+}
+
+.address-name-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.address-name {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.address-type {
+  background: #f5f5f6;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #03a685;
+}
+
+.address-street, .address-city {
+  font-size: 14px;
+  color: #535665;
+  margin-bottom: 5px;
+}
+
+.address-mobile {
+  font-size: 14px;
+  color: #535665;
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+
+.deliver-here-btn {
+  background-color: #ff3f6c;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 200px;
+}

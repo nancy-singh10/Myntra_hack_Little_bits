@@ -1,0 +1,109 @@
+.App {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.main-content {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.bank-offers-banner {
+  margin: 20px 4%;
+  border: 1px solid #4a90e2;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  gap: 30px;
+}
+
+.bank-logos {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.bank-logo {
+  font-weight: 800;
+  font-size: 20px;
+}
+
+.bank-logo.bob {
+  color: #ff5722;
+}
+
+.bank-logo.hsbc {
+  color: #d32f2f;
+}
+
+.bank-logo.sbi {
+  color: #1976d2;
+}
+
+.bank-offer-text {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-text-dark);
+  border-left: 2px solid #ccc;
+  padding-left: 30px;
+}
+
+.wow-banner-header {
+  display: flex;
+  justify-content: center;
+  margin-top: 60px;
+  margin-bottom: -15px; /* Pull carousel up slightly */
+  position: relative;
+  z-index: 10;
+}
+
+.wow-badge {
+  background-color: var(--color-purple-light);
+  color: white;
+  padding: 15px 60px;
+  border-radius: 8px 8px 0 0;
+  text-align: center;
+  clip-path: polygon(10% 0, 100% 0, 100% 100%, 0% 100%);
+  position: relative;
+}
+
+.wow-badge::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border: 2px solid white;
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.wow-title {
+  font-size: 32px;
+  font-weight: 900;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.wow-subtitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* App Banner */
+.app-banner-container {
+  width: 100%;
+  padding: 40px 4%;
+  margin-bottom: 20px;
+}
+
+.app-banner-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}

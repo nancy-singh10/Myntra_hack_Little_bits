@@ -1,0 +1,12 @@
+.section-heading-container {
+  text-align: center;
+  margin: 40px 0;
+}
+
+.section-title {
+  font-size: 42px;
+  font-weight: 900;
+  color: var(--color-purple);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}

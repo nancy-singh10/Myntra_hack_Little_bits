@@ -1,0 +1,126 @@
+.wishlist-page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  font-family: 'Assistant', sans-serif;
+}
+
+.wishlist-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #282c3f;
+  margin-bottom: 30px;
+}
+
+.wishlist-count {
+  font-size: 16px;
+  font-weight: 400;
+  color: #535665;
+}
+
+.empty-wishlist {
+  text-align: center;
+  padding: 80px 0;
+}
+
+.empty-wishlist-text {
+  font-size: 20px;
+  font-weight: 700;
+  color: #282c3f;
+  margin-bottom: 15px;
+}
+
+.empty-wishlist p {
+  font-size: 16px;
+  color: #7e818c;
+  margin-bottom: 30px;
+}
+
+.continue-shopping-btn {
+  padding: 14px 45px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ff3f6c;
+  background: white;
+  border: 1px solid #ff3f6c;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.continue-shopping-btn:hover {
+  background: #ff3f6c;
+  color: white;
+}
+
+.wishlist-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.wishlist-product-card {
+  border: 1px solid #eaeaec;
+  border-radius: 2px;
+  position: relative;
+  background: white;
+  transition: box-shadow 0.2s;
+}
+
+.wishlist-product-card:hover {
+  box-shadow: 0 2px 16px 4px rgba(40,44,63,0.07);
+}
+
+.remove-wishlist-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #535665;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.remove-wishlist-btn:hover {
+  background: white;
+}
+
+.wishlist-details-summary {
+  padding: 12px;
+  text-align: center;
+}
+
+.wishlist-details-summary .summary-title {
+  margin-bottom: 10px;
+}
+
+.wishlist-details-summary .summary-price-row {
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.move-to-bag-btn {
+  width: 100%;
+  padding: 12px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ff3f6c;
+  background: white;
+  border-top: 1px solid #eaeaec;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  cursor: pointer;
+}
+
+.move-to-bag-btn:hover {
+  background: #ff3f6c;
+  color: white;
+}

@@ -1,0 +1,125 @@
+.payment-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  font-family: 'Assistant', sans-serif;
+  color: #282c3f;
+}
+
+.payment-options-container {
+  display: flex;
+  border: 1px solid #eaeaec;
+  border-radius: 4px;
+  min-height: 400px;
+  background: white;
+}
+
+.payment-sidebar {
+  width: 250px;
+  background-color: #f5f5f6;
+  border-right: 1px solid #eaeaec;
+}
+
+.payment-tab {
+  padding: 20px 15px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border-bottom: 1px solid #eaeaec;
+  color: #535665;
+}
+
+.payment-tab:hover {
+  background-color: #f0f0f0;
+}
+
+.payment-tab.active {
+  background-color: white;
+  color: #282c3f;
+  border-left: 4px solid #ff3f6c;
+}
+
+.payment-details {
+  flex: 1;
+  padding: 30px;
+}
+
+.payment-method-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 5px 0;
+}
+
+.payment-method-desc {
+  font-size: 13px;
+  color: #535665;
+  margin-bottom: 25px;
+}
+
+.payment-input {
+  border: 1px solid #d4d5d9;
+  padding: 12px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+}
+
+.payment-input:focus {
+  border-color: #ff3f6c;
+}
+
+.full-width {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 15px;
+}
+
+.half-width {
+  width: 48%;
+  box-sizing: border-box;
+}
+
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 25px;
+}
+
+.upi-form {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.verify-btn {
+  background: white;
+  color: #ff3f6c;
+  border: 1px solid #ff3f6c;
+  padding: 0 20px;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pay-now-btn {
+  background-color: #ff3f6c;
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.cod-fee-msg {
+  font-size: 14px;
+  color: #03a685;
+  background: #f4fdfb;
+  padding: 15px;
+  border: 1px dashed #20bd99;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}

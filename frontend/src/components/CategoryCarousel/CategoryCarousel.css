@@ -1,0 +1,44 @@
+.category-carousel {
+  width: 100%;
+  padding: 0 4%;
+  margin-bottom: 40px;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 20px;
+  /* Hide scrollbar for cleaner look */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-slide {
+  flex: 0 0 calc(25% - 15px); /* Show 4 cards per view approx */
+  min-width: 250px;
+}
+
+.carousel-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #d4d5d9;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.indicator.active {
+  background-color: #535766;
+}

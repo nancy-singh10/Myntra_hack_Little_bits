@@ -1,0 +1,124 @@
+.category-card {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  background-color: var(--color-bg-light);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease-in-out;
+}
+
+.category-card:hover {
+  transform: scale(1.02);
+}
+
+.card-image-placeholder {
+  width: 100%;
+  aspect-ratio: 3/4;
+  height: auto;
+  background-color: #e0e0e0;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Budget Card Specifics */
+.budget-card {
+  border: 4px solid var(--color-white);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.budget-card .card-content-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 20px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  color: white;
+  text-align: center;
+}
+
+.budget-title {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.budget-subtitle {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+/* Wow Card Specifics */
+.wow-card {
+  border: 4px solid var(--color-purple-light);
+}
+
+.wow-content {
+  background-color: var(--color-purple-light);
+  color: white;
+  text-align: center;
+  padding: 15px;
+}
+
+.wow-brands {
+  background: white;
+  color: var(--color-text-dark);
+  padding: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: -30px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  position: relative;
+  z-index: 10;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.wow-discount h3 {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.wow-discount p {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Shop Card Specifics */
+.shop-card {
+  border: 4px solid #6c32f9; /* Matching the purple border */
+  border-radius: 4px;
+}
+
+.shop-content {
+  background-color: #fcebd0;
+  text-align: center;
+  padding: 12px 10px 18px 10px;
+}
+
+.shop-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 5px;
+}
+
+.shop-discount {
+  font-size: 26px;
+  font-weight: 900;
+  margin: 0;
+  color: #111;
+  line-height: 1.1;
+}
+
+.shop-link {
+  font-size: 15px;
+  font-weight: 800;
+  color: #111;
+  margin-top: 5px;
+}

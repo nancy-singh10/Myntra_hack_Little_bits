@@ -1,0 +1,31 @@
+.hero-carousel-container {
+  width: 100%;
+  padding: 20px 0; /* Remove horizontal padding so banners can go full width */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center the banners */
+  gap: 15px; 
+}
+
+.banner {
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.flat-300-banner {
+  width: 90%;
+  max-width: 1200px;
+}
+
+.mega-savings-banner {
+  width: 100%;
+  /* Optional max width if needed for very large screens, else full width */
+}
+
+.full-banner-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}

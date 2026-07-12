@@ -1,0 +1,297 @@
+.women-hero-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 0;
+  gap: 10px;
+}
+
+/* Flat 300 Off Banner */
+.flat-discount-banner {
+  width: 100%;
+  background-color: #0b72e7;
+  color: white;
+  display: flex;
+  height: 100px;
+  overflow: hidden;
+  position: relative;
+}
+
+.flat-discount-left {
+  flex: 6.5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.flat-discount-left sup {
+  font-size: 32px;
+  top: -0.8em;
+  margin-right: 5px;
+}
+
+.flat-discount-right {
+  flex: 3.5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+}
+
+/* Zigzag separator */
+.flat-discount-separator {
+  position: absolute;
+  left: 65%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  border-left: 2px dashed rgba(255, 255, 255, 0.7);
+  z-index: 2;
+}
+
+.purchase-text {
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.purchase-text-bold {
+  font-weight: 700;
+}
+
+.myntra-app-text {
+  display: flex;
+  align-items: center;
+  font-size: 24px;
+  font-weight: 700;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.myntra-app-logo {
+  width: 30px;
+  height: 30px;
+  background-color: white;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+}
+
+.myntra-app-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Mega Savings Banner (Built with CSS) */
+.mega-savings-banner-css {
+  width: 100%;
+  background-color: #0b72e7;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  margin-top: 5px;
+}
+
+.mega-savings-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  position: relative;
+  height: 250px;
+  z-index: 1;
+}
+
+/* Background watermark styling */
+.mega-savings-banner-css::before {
+  content: "% OFF 50-80% OFF 50-80% OFF";
+  position: absolute;
+  top: 0;
+  left: -10%;
+  font-size: 150px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.05);
+  line-height: 0.8;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.mega-savings-banner-css::after {
+  content: "50-80% OFF 50-80% OFF % OFF";
+  position: absolute;
+  bottom: 30px;
+  left: -10%;
+  font-size: 150px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.05);
+  line-height: 0.8;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Left Badge */
+.mega-left-badge {
+  display: flex;
+  position: relative;
+  z-index: 2;
+  transform: rotate(-2deg);
+}
+
+.mega-green-box {
+  background-color: #2e7d32;
+  border: 3px solid white;
+  border-radius: 4px;
+  padding: 5px 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  box-shadow: 6px 6px 0px #1b5e20;
+}
+
+.mega-text-large {
+  font-size: 42px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.mega-text-small {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.mega-pink-percent {
+  background-color: #ff99ff;
+  border: 3px solid white;
+  color: #333;
+  font-size: 40px;
+  font-weight: 900;
+  padding: 5px 15px;
+  border-radius: 4px;
+  margin-left: -5px;
+  z-index: -1;
+  display: flex;
+  align-items: center;
+}
+
+.mega-live-now {
+  background-color: #ff99ff;
+  border: 3px solid white;
+  color: #333;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 4px;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -5px;
+  z-index: -2;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #2e7d32;
+  border-radius: 50%;
+  margin-bottom: 5px;
+}
+
+/* Center Models */
+.mega-center-models {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  height: 120%;
+  z-index: 2;
+}
+
+.mega-center-models img {
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Right Discount Text */
+.mega-right-discount {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.discount-box {
+  background-color: #0b72e7;
+  border: 4px solid #ff99ff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  padding: 5px 15px;
+  gap: 15px;
+}
+
+.discount-number {
+  color: #ffeb3b;
+  font-size: 56px;
+  font-weight: 900;
+}
+
+.discount-off {
+  background-color: #ff99ff;
+  color: #0b72e7;
+  font-size: 40px;
+  font-weight: 900;
+  border-radius: 5px;
+  padding: 5px 15px;
+}
+
+.discount-subtitle {
+  color: #ffeb3b;
+  font-size: 24px;
+  font-weight: 800;
+  margin-top: 10px;
+}
+
+/* Bottom Ribbon */
+.mega-pink-ribbon {
+  background-color: #ff99ff;
+  color: #0b72e7;
+  font-weight: 800;
+  font-size: 16px;
+  padding: 5px 0;
+  display: flex;
+  justify-content: space-around;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+.ribbon-arrow {
+  background-color: #0b72e7;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-style: normal;
+  margin-left: 5px;
+}

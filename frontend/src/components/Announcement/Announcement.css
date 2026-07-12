@@ -1,0 +1,20 @@
+.announcement-container {
+  background-color: var(--color-blue-light);
+  text-align: center;
+  padding: 12px 0;
+  font-size: 16px;
+  color: #535766;
+  font-weight: 400;
+}
+
+.announcement-text .time {
+  margin-left: 8px;
+  font-weight: 500;
+}
+
+.announcement-text .highlight {
+  color: var(--color-primary);
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 2px;
+}
