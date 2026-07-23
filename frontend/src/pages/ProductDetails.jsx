@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { allProducts } from '../data/mockProducts';
+
 import './ProductDetails.css';
 
 const ProductDetails = ({ addToCart, wishlist, toggleWishlist }) => {
@@ -9,6 +10,7 @@ const ProductDetails = ({ addToCart, wishlist, toggleWishlist }) => {
 
   const [selectedSize, setSelectedSize] = useState('M');
   const [selectedColor, setSelectedColor] = useState('Blue');
+
 
   // Find the product from our database or fallback to the first one
   const productData = allProducts.find(p => p.id === parseInt(id)) || allProducts[0];
@@ -112,14 +114,22 @@ const ProductDetails = ({ addToCart, wishlist, toggleWishlist }) => {
 
           <div className="action-buttons">
             <button className="add-to-bag-btn" onClick={() => {
-              addToCart(product, selectedSize, selectedColor);
+              addToCart(product, selectedSize, selectedColor, false);
               handleAddToCart();
             }}>
               <span className="icon">🛍️</span> ADD TO BAG
             </button>
-            <button className="wishlist-btn" onClick={(e) => toggleWishlist(e, product.id)}>
-              <span className="icon">{wishlist[product.id] ? '❤️' : '♡'}</span> {wishlist[product.id] ? 'WISHLISTED' : 'WISHLIST'}
+            <button className="add-to-bag-btn split-bag-add-btn" onClick={() => {
+              addToCart(product, selectedSize, selectedColor, true);
+              handleAddToCart();
+            }}>
+              <span className="icon">🤝</span> ADD TO SPLIT BAG
             </button>
+            <button className="wishlist-btn" onClick={(e) => toggleWishlist(e, product.id)}>
+              <span className="icon">{wishlist[product.id] ? '❤️' : '♡'}</span> {wishlist[product.id] ? 'WISHLIST' : 'WISHLIST'}
+            </button>
+            
+
           </div>
 
           <hr className="divider" />
@@ -130,6 +140,7 @@ const ProductDetails = ({ addToCart, wishlist, toggleWishlist }) => {
           </div>
         </div>
       </div>
+
     </div>
   );
 };

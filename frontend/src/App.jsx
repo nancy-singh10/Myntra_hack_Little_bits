@@ -11,6 +11,12 @@ import Address from './pages/Address';
 import Payment from './pages/Payment';
 import Search from './pages/Search';
 import Wishlist from './pages/Wishlist';
+
+
+
+import StylingCrewPage from './pages/StylingCrewPage';
+import DigitalWardrobe from './pages/DigitalWardrobe';
+
 import './App.css';
 
 function App() {
@@ -23,17 +29,17 @@ function App() {
     setWishlist(prev => ({...prev, [id]: !prev[id]}));
   };
 
-  const addToCart = (product, size = 'M', color = 'Default') => {
+  const addToCart = (product, size = 'M', color = 'Default', isShared = false) => {
     setCartItems(prev => {
-      const existing = prev.find(item => item.id === product.id && item.size === size && item.color === color);
+      const existing = prev.find(item => item.id === product.id && item.size === size && item.color === color && item.isShared === isShared);
       if (existing) {
         return prev.map(item => 
-          item.id === product.id && item.size === size && item.color === color
+          item.id === product.id && item.size === size && item.color === color && item.isShared === isShared
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
-      return [...prev, { ...product, size, color, quantity: 1 }];
+      return [...prev, { ...product, size, color, quantity: 1, isShared }];
     });
   };
 
@@ -50,6 +56,15 @@ function App() {
         <Route path="/payment" element={<Payment />} />
         <Route path="/search" element={<Search wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
         <Route path="/wishlist" element={<Wishlist wishlist={wishlist} toggleWishlist={toggleWishlist} addToCart={addToCart} />} />
+        
+
+        
+        {/* New Multi-Agent Feature */}
+        <Route path="/styling-crew" element={<StylingCrewPage />} />
+        
+        {/* Generative Upcycling / Digital Wardrobe */}
+        <Route path="/wardrobe" element={<DigitalWardrobe />} />
+
         <Route path="*" element={<Home />} />
       </Routes>
 

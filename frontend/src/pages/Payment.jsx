@@ -1,10 +1,20 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './Payment.css';
 
 const Payment = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedMethod, setSelectedMethod] = useState('UPI');
+
+  const { displayItems, totalMRP, totalDiscount, totalAmount, checkoutMode, splitBreakdown } = location.state || {
+    displayItems: [1],
+    totalMRP: 2999,
+    totalDiscount: 2000,
+    totalAmount: 999,
+    checkoutMode: 'pay_all',
+    splitBreakdown: {}
+  };
 
   const paymentMethods = [
     { id: 'UPI', label: 'UPI', description: 'Pay via any UPI app' },
@@ -66,7 +76,7 @@ const Payment = () => {
               )}
               
               <button className="pay-now-btn" onClick={handlePlaceOrder}>
-                {selectedMethod === 'COD' ? 'PLACE ORDER' : 'PAY ₹999'}
+                {selectedMethod === 'COD' ? 'PLACE ORDER' : `PAY ₹${totalAmount}`}
               </button>
             </div>
           </div>
@@ -74,23 +84,35 @@ const Payment = () => {
 
         <div className="cart-right">
           <div className="price-details-card">
-            <h4 className="price-header">PRICE DETAILS (1 Item)</h4>
+            <h4 className="price-header">PRICE DETAILS ({displayItems.length} {displayItems.length === 1 ? 'Item' : 'Items'})</h4>
             
             <div className="price-row">
               <span>Total MRP</span>
-              <span>₹2999</span>
+              <span>₹{totalMRP}</span>
             </div>
             <div className="price-row">
               <span>Discount on MRP</span>
-              <span className="discount-value">-₹2000</span>
+              <span className="discount-value">-₹{totalDiscount}</span>
             </div>
             
             <hr className="price-divider" />
             
             <div className="price-row total-row">
               <span>Total Amount</span>
-              <span>₹999</span>
+              <span>₹{totalAmount}</span>
             </div>
+
+            {checkoutMode === 'split' && (
+              <div className="split-breakdown" style={{marginTop: '15px'}}>
+                <h5 style={{fontSize: '12px', color: '#535665', marginBottom: '10px'}}>SPLIT PAYMENT SUMMARY</h5>
+                {Object.entries(splitBreakdown).map(([person, amount]) => (
+                  <div key={person} className="price-row" style={{marginBottom: '5px'}}>
+                    <span style={{fontWeight: 600}}>{person} pays:</span>
+                    <span style={{fontWeight: 700}}>₹{amount}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

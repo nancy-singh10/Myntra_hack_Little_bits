@@ -163,11 +163,13 @@
 
 .action-buttons {
   display: flex;
+  flex-wrap: wrap;
   gap: 15px;
 }
 
 .add-to-bag-btn {
-  flex: 2;
+  flex: 1;
+  min-width: 200px;
   background-color: #ff3e6c;
   color: white;
   border: none;
@@ -180,6 +182,10 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
+}
+
+.split-bag-add-btn {
+  background: linear-gradient(135deg, #ff3f6c, #ff7e5f);
 }
 
 .wishlist-btn {

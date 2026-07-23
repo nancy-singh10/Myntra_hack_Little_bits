@@ -1,30 +1,40 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './Address.css';
 
 const Address = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedAddress, setSelectedAddress] = useState(1);
+  
+  const { displayItems, totalMRP, totalDiscount, totalAmount, checkoutMode, splitBreakdown } = location.state || {
+    displayItems: [1],
+    totalMRP: 2999,
+    totalDiscount: 2000,
+    totalAmount: 999,
+    checkoutMode: 'pay_all',
+    splitBreakdown: {}
+  };
 
   const addresses = [
     {
       id: 1,
-      name: 'Jane Doe',
+      name: 'Nancy',
       type: 'HOME',
-      street: '123 Fashion Street, Style Avenue',
-      city: 'Mumbai',
-      state: 'Maharashtra',
-      pincode: '400001',
+      street: 'XYZ STREET',
+      city: 'Lucknow',
+      state: 'Uttarpradesh',
+      pincode: '226001',
       mobile: '9876543210'
     },
     {
       id: 2,
-      name: 'Jane Doe',
+      name: 'Nancy',
       type: 'WORK',
-      street: '456 Tech Park, Developer Road',
-      city: 'Bangalore',
-      state: 'Karnataka',
-      pincode: '560001',
+      street: 'XYZ STREET, Tech Park',
+      city: 'Lucknow',
+      state: 'Uttarpradesh',
+      pincode: '226001',
       mobile: '9876543210'
     }
   ];
@@ -75,7 +85,7 @@ const Address = () => {
                   <div className="address-mobile">Mobile: <strong>{addr.mobile}</strong></div>
                   
                   {selectedAddress === addr.id && (
-                    <button className="deliver-here-btn" onClick={() => navigate('/payment')}>
+                    <button className="deliver-here-btn" onClick={() => navigate('/payment', { state: location.state })}>
                       DELIVER HERE
                     </button>
                   )}
@@ -87,15 +97,15 @@ const Address = () => {
 
         <div className="cart-right">
           <div className="price-details-card">
-            <h4 className="price-header">PRICE DETAILS (1 Item)</h4>
+            <h4 className="price-header">PRICE DETAILS ({displayItems.length} {displayItems.length === 1 ? 'Item' : 'Items'})</h4>
             
             <div className="price-row">
               <span>Total MRP</span>
-              <span>₹2999</span>
+              <span>₹{totalMRP}</span>
             </div>
             <div className="price-row">
               <span>Discount on MRP</span>
-              <span className="discount-value">-₹2000</span>
+              <span className="discount-value">-₹{totalDiscount}</span>
             </div>
             <div className="price-row">
               <span>Platform Fee</span>
@@ -110,8 +120,20 @@ const Address = () => {
             
             <div className="price-row total-row">
               <span>Total Amount</span>
-              <span>₹999</span>
+              <span>₹{totalAmount}</span>
             </div>
+
+            {checkoutMode === 'split' && (
+              <div className="split-breakdown" style={{marginTop: '15px'}}>
+                <h5 style={{fontSize: '12px', color: '#535665', marginBottom: '10px'}}>SPLIT PAYMENT SUMMARY</h5>
+                {Object.entries(splitBreakdown).map(([person, amount]) => (
+                  <div key={person} className="price-row" style={{marginBottom: '5px'}}>
+                    <span style={{fontWeight: 600}}>{person} pays:</span>
+                    <span style={{fontWeight: 700}}>₹{amount}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

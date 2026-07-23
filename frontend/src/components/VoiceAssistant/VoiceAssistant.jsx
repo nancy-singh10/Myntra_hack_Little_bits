@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Mic, MicOff, Square } from 'lucide-react';
 import './VoiceAssistant.css';
 
 const VoiceAssistant = () => {
@@ -364,8 +365,8 @@ const VoiceAssistant = () => {
             className={`orb ${isListening ? 'listening' : ''}`}
             onClick={toggleListening}
           >
-            <div className="orb-inner">
-              {isListening ? '🛑' : '📞'}
+            <div className="orb-inner" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+              {isListening ? <Square fill="currentColor" size={20} /> : <Mic size={24} />}
             </div>
           </div>
         </div>
@@ -390,7 +391,7 @@ const VoiceAssistant = () => {
         onClick={() => setIsOpen(!isOpen)}
         title="Open Voice Assistant"
       >
-        <span className="mic-icon">✨</span>
+        <span className="mic-icon" style={{display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff3f6c'}}><Mic size={28} /></span>
       </button>
 
       <audio ref={audioRef} style={{ display: 'none' }} />

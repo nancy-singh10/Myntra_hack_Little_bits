@@ -1,0 +1,215 @@
+.roots-feed-container {
+  background-color: #000;
+  color: white;
+  min-height: calc(100vh - 70px);
+  padding-bottom: 60px;
+}
+
+.roots-feed-header {
+  padding: 15px 20px;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.roots-feed-header h1 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #ff3f6c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.roots-feed-header p {
+  font-size: 14px;
+  color: #ccc;
+  margin: 5px 0 0 0;
+}
+
+.feed-scroll-container {
+  height: calc(100vh - 150px);
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+}
+
+.feed-post {
+  height: calc(100vh - 150px);
+  width: 100%;
+  position: relative;
+  scroll-snap-align: start;
+  background: #111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.post-video {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+}
+
+.post-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.4) 100%);
+}
+
+.post-header-info {
+  margin-top: 10px;
+}
+
+.post-header-info h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.location-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #ddd;
+  margin-top: 4px;
+}
+
+.post-actions-right {
+  position: absolute;
+  right: 20px;
+  bottom: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.action-btn span {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.post-bottom-info {
+  margin-bottom: 20px;
+  width: 80%;
+}
+
+.post-desc {
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 15px;
+}
+
+.ai-stylist-prompt {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(45deg, #ff3f6c, #ff9a9e);
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 10px;
+  animation: pulseStylist 2s infinite;
+}
+
+@keyframes pulseStylist {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.ai-stylist-response {
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  font-size: 13px;
+  line-height: 1.5;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.shoppable-card {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.2);
+  cursor: pointer;
+}
+
+.shoppable-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.shoppable-details {
+  flex: 1;
+  margin-left: 15px;
+}
+
+.shoppable-details h4 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.shoppable-details p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ff3f6c;
+}
+
+.buy-btn {
+  background: white;
+  color: black;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+/* Add to bottom of RootsFeed.css */
+
+.dynamic-zoom {
+  animation: smoothZoom 20s infinite alternate linear;
+  transform-origin: center center;
+}
+
+@keyframes smoothZoom {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.15); }
+}
