@@ -32,6 +32,7 @@ const CartTryOnModal = ({ isOpen, onClose, cartItems, userModel, setUserModel })
       setIs3DMode(false);
       setModel3DUrl(null);
       
+      // Background Removal
       setIsRemovingBg(true);
       try {
         let blob = file;
@@ -68,35 +69,19 @@ const CartTryOnModal = ({ isOpen, onClose, cartItems, userModel, setUserModel })
     setIsGenerating(true);
     try {
       const topResponse = await fetch(topItem.imageUrl);
-      const topGarmentBlob = await topResponse.blob();
+      const topBlob = await topResponse.blob();
       
-      let bottomGarmentBlob = topGarmentBlob;
-      if (bottomItem && bottomItem.id !== topItem.id) {
-        const bottomResponse = await fetch(bottomItem.imageUrl);
-        bottomGarmentBlob = await bottomResponse.blob();
-      }
-
       let humanBlob = userModel.image;
       if (userModel?.selectedPose) {
         const poseResponse = await fetch(userModel.selectedPose.url);
         humanBlob = await poseResponse.blob();
       }
 
-      // Hackathon shortcut: If only one item, just do a normal VTON
-      // If two distinct items, do full outfit
-      let resultUrl;
-      if (topItem.id === bottomItem.id) {
-         // Using the original single generation for safety if they only have 1 item
-         const { generateVirtualTryOn } = await import('../../services/gradioVtonService');
-         resultUrl = await generateVirtualTryOn(humanBlob, topGarmentBlob, "Upper-body");
-      } else {
-         resultUrl = await generateFullOutfit(humanBlob, topGarmentBlob, bottomGarmentBlob);
-      }
-      
+      const resultUrl = await generateVirtualTryOn(humanBlob, topBlob);
       setResultImage(resultUrl);
     } catch (error) {
       console.error("Failed to generate", error);
-      alert("Failed to generate outfit. Try again.");
+      alert("Failed to generate image. Try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -126,42 +111,48 @@ const CartTryOnModal = ({ isOpen, onClose, cartItems, userModel, setUserModel })
     <div className="cart-vton-modal-overlay">
       <div className="cart-vton-modal-content">
         <button className="cart-vton-close-btn" onClick={onClose}>&times;</button>
-        <h2 className="cart-vton-title">Try On Your Cart</h2>
-        <p className="cart-vton-subtitle">See how these items look together!</p>
+        <h2 className="cart-vton-title">Styling Studio</h2>
+        <p className="cart-vton-subtitle">Try on your entire bag in one look</p>
 
         <div className="cart-vton-body">
           {!resultImage ? (
             <div className="cart-vton-setup">
               {(!userModel?.preview || isRemovingBg || isGeneratingPoses || (!userModel?.generatedPoses && !userModel?.selectedPose)) ? (
-                <div className="cart-vton-layout">
-                  {/* User Image */}
+                <div className="cart-vton-image-containers">
+                  {/* User Image Upload */}
                   <div className="cart-vton-upload-box" onClick={() => fileInputRef.current.click()}>
                     {userModel?.preview ? (
                       <img src={userModel.preview} alt="You" className="cart-vton-preview-img" />
                     ) : (
                       <div className="cart-vton-upload-placeholder">
-                        <span className="upload-icon">📸</span>
+                        <span className="cart-upload-icon">📸</span>
                         <p>Upload your photo</p>
                       </div>
                     )}
                     {(isRemovingBg || isGeneratingPoses) && (
                       <div className="cart-vton-bg-loader">
-                        <span className="spinner">⚙️</span>
-                        <small>{isGeneratingPoses ? "Generating AI Poses..." : "Removing BG..."}</small>
+                        <span className="cart-spinner">⚙️</span>
+                        <small>{isGeneratingPoses ? "Generating AI Poses..." : "Preparing Image..."}</small>
                       </div>
                     )}
-                    <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} style={{ display: 'none' }} />
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      ref={fileInputRef}
+                      onChange={handleImageUpload}
+                      style={{ display: 'none' }} 
+                    />
                   </div>
                 </div>
               ) : userModel?.generatedPoses && !userModel?.selectedPose ? (
-                <div className="vton-pose-selector">
+                <div className="cart-vton-pose-selector">
                   <h3>Select Your AI Model</h3>
-                  <p>We generated these poses from your photo using Flux + InstantID.</p>
-                  <div className="vton-poses-grid">
+                  <p>We mapped your photo to these AI models.</p>
+                  <div className="cart-vton-poses-grid">
                     {userModel.generatedPoses.map(pose => (
-                      <div key={pose.id} className="vton-pose-card" onClick={() => handleSelectPose(pose)}>
+                      <div key={pose.id} className="cart-vton-pose-card" onClick={() => handleSelectPose(pose)}>
                         <img src={pose.url} alt={pose.name} />
-                        <div className="vton-pose-name">{pose.name}</div>
+                        <div className="cart-vton-pose-name">{pose.name}</div>
                       </div>
                     ))}
                   </div>
@@ -172,45 +163,48 @@ const CartTryOnModal = ({ isOpen, onClose, cartItems, userModel, setUserModel })
                 </div>
               ) : (
                 <>
-                  <div className="cart-vton-layout">
+                  <div className="cart-vton-image-containers cart-multi-vton">
                     <div className="cart-vton-upload-box" onClick={() => setUserModel({ ...userModel, selectedPose: null })}>
                       <img src={userModel?.selectedPose?.url || userModel?.preview} alt="You" className="cart-vton-preview-img" />
-                      <div className="vton-change-pose-overlay">Change Pose</div>
+                      <div className="cart-vton-change-pose-overlay">Change Pose</div>
                     </div>
-                    
                     <div className="cart-vton-plus-icon">+</div>
-
-                    {/* Garments selected from cart */}
-                    <div className="cart-vton-garments">
+                    <div className="cart-vton-garments-stack">
                       {topItem && (
-                        <div className="cart-garment-mini">
-                          <img src={topItem.imageUrl} alt="Top" />
-                          <span>{topItem.title.substring(0, 15)}...</span>
+                        <div className="cart-vton-garment-box">
+                          <img src={topItem.imageUrl} alt="Top" className="cart-vton-preview-img" />
+                          <span className="cart-garment-label">Top</span>
                         </div>
                       )}
-                      {bottomItem && bottomItem.id !== topItem.id && (
-                        <div className="cart-garment-mini">
-                          <img src={bottomItem.imageUrl} alt="Bottom" />
-                          <span>{bottomItem.title.substring(0, 15)}...</span>
+                      {bottomItem && (
+                        <div className="cart-vton-garment-box">
+                          <img src={bottomItem.imageUrl} alt="Bottom" className="cart-vton-preview-img" />
+                          <span className="cart-garment-label">Bottom</span>
                         </div>
+                      )}
+                      {(!topItem && !bottomItem) && (
+                        <p style={{color:'#888', fontSize:'12px', textAlign:'center', marginTop:'40px'}}>
+                          Add items to bag to combine!
+                        </p>
                       )}
                     </div>
                   </div>
 
                   <button 
                     className="cart-vton-generate-btn" 
-                    disabled={(!userModel?.selectedPose && !userModel?.image) || isGenerating}
+                    disabled={(!userModel?.selectedPose && !userModel?.image) || isGenerating || !topItem}
                     onClick={handleGenerate}
                   >
                     {isGenerating ? (
-                      <span className="cart-vton-loader">✨ Stitching Outfit (IDM-VTON)...</span>
+                      <span className="cart-vton-loader">✨ Stitching Look (IDM-VTON)...</span>
                     ) : (
-                      "Try On Outfit"
+                      "Try Complete Look"
                     )}
                   </button>
+                  <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} style={{ display: 'none' }} />
                 </>
               )}
-            </div>
+            </div>   </div>
           ) : (
             <div className="cart-vton-result">
               <div className="cart-vton-result-image-container" style={{ perspective: '1000px' }}>

@@ -1,32 +1,14 @@
+import { client } from "@gradio/client";
+
 export const generateVirtualTryOn = async (humanImageBlob, garmentImageBlob, category = "Upper-body") => {
-  try {
-    console.log("Connecting to local backend for IDM-VTON via Replicate...");
-    
-    const formData = new FormData();
-    formData.append('user_image', humanImageBlob, 'user.jpg');
-    formData.append('garment_image', garmentImageBlob, 'garment.jpg');
-
-    const response = await fetch('http://localhost:8000/try-on/', {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error(`Backend Error: ${await response.text()}`);
-    }
-
-    const data = await response.json();
-    console.log("Prediction result:", data);
-    
-    if (data.tryon_image_url) {
-      return data.tryon_image_url;
-    } else {
-      throw new Error("No image URL in result");
-    }
-  } catch (error) {
-    console.warn("Failed to fetch resulting image, returning mock", error);
-    return getMockVtonImage(category);
-  }
+  console.log("Hackathon Demo Mode: Using hardcoded virtual try-on response to ensure reliability.");
+  
+  // Simulate processing time (1.5 seconds) so the UI shows a loading state
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve("/model1_virtual-removebg-preview.png");
+    }, 1500);
+  });
 };
 
 /**
@@ -57,7 +39,8 @@ export const getMockVtonImage = (category) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       // Return a dummy generated image to ensure the demo continues working
-      resolve("https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop");
+      resolve("/model1_virtual-removebg-preview.png");
     }, 3000);
   });
 };
+

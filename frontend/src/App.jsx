@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import VoiceAssistant from './components/VoiceAssistant/VoiceAssistant';
@@ -16,6 +16,7 @@ import Wishlist from './pages/Wishlist';
 
 import StylingCrewPage from './pages/StylingCrewPage';
 import DigitalWardrobe from './pages/DigitalWardrobe';
+import Studio from './pages/Studio';
 
 import './App.css';
 
@@ -57,13 +58,14 @@ function App() {
         <Route path="/search" element={<Search wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
         <Route path="/wishlist" element={<Wishlist wishlist={wishlist} toggleWishlist={toggleWishlist} addToCart={addToCart} />} />
         
-
-        
         {/* New Multi-Agent Feature */}
         <Route path="/styling-crew" element={<StylingCrewPage />} />
         
         {/* Generative Upcycling / Digital Wardrobe */}
         <Route path="/wardrobe" element={<DigitalWardrobe />} />
+
+        {/* Myntra Studio / Vitra Dashboard */}
+        <Route path="/studio" element={<Studio addToCart={addToCart} wishlist={wishlist} />} />
 
         <Route path="*" element={<Home />} />
       </Routes>

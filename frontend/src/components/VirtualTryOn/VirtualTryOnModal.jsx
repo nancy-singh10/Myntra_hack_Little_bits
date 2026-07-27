@@ -47,7 +47,6 @@ const VirtualTryOnModal = ({ isOpen, onClose, garmentImage, userModel, setUserMo
         } finally {
           setIsGeneratingPoses(false);
         }
-
       } finally {
         setIsRemovingBg(false);
       }
@@ -127,7 +126,7 @@ const VirtualTryOnModal = ({ isOpen, onClose, garmentImage, userModel, setUserMo
                     {(isRemovingBg || isGeneratingPoses) && (
                       <div className="vton-bg-loader">
                         <span className="spinner">⚙️</span>
-                        <small>{isGeneratingPoses ? "Generating AI Poses (Flux + InstantID)..." : "Removing BG..."}</small>
+                        <small>{isGeneratingPoses ? "Generating AI Poses..." : "Preparing Image..."}</small>
                       </div>
                     )}
                     <input 
@@ -142,7 +141,7 @@ const VirtualTryOnModal = ({ isOpen, onClose, garmentImage, userModel, setUserMo
               ) : userModel?.generatedPoses && !userModel?.selectedPose ? (
                 <div className="vton-pose-selector">
                   <h3>Select Your AI Model</h3>
-                  <p>We generated these poses from your photo using Flux + InstantID.</p>
+                  <p>We mapped your photo to these AI models.</p>
                   <div className="vton-poses-grid">
                     {userModel.generatedPoses.map(pose => (
                       <div key={pose.id} className="vton-pose-card" onClick={() => handleSelectPose(pose)}>
@@ -180,6 +179,7 @@ const VirtualTryOnModal = ({ isOpen, onClose, garmentImage, userModel, setUserMo
                       "Try It On"
                     )}
                   </button>
+                  <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} style={{ display: 'none' }} />
                 </>
               )}
             </div>
