@@ -1,11 +1,12 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { allProducts } from '../data/mockProducts';
 import './Wishlist.css';
 
-const Wishlist = ({ wishlist, toggleWishlist }) => {
+const Wishlist = ({ wishlist, toggleWishlist, addToCart }) => {
   // Filter products to only those that are wishlisted (where wishlist[id] is true)
   const wishlistedProducts = allProducts.filter(p => wishlist[p.id]);
+  const navigate = useNavigate();
 
   return (
     <div className="wishlist-page-container">
@@ -26,9 +27,13 @@ const Wishlist = ({ wishlist, toggleWishlist }) => {
           {wishlistedProducts.map(product => (
             <div className="wishlist-product-card" key={product.id}>
               <div className="product-image-wrapper">
-                <Link to={`/product/${product.id}`} style={{textDecoration: 'none', display: 'block', height: '100%'}}>
+                <div style={{cursor: 'pointer', display: 'block', height: '100%'}} onClick={() => {
+                    // Dispatch event to load this image into the Studio mirror and navigate there
+                    window.dispatchEvent(new CustomEvent('load-model-image', { detail: { imageUrl: product.imageUrl } }));
+                    navigate('/studio');
+                  }}>
                   <img src={product.imageUrl} alt={product.title} />
-                </Link>
+                </div>
                 <div 
                   className="remove-wishlist-btn" 
                   onClick={(e) => toggleWishlist(e, product.id)}

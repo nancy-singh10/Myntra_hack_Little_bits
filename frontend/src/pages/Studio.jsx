@@ -74,6 +74,24 @@ const Studio = ({ addToCart, wishlist }) => {
     }
   }, []);
 
+  // Listen for external requests to load a model image into the mirror
+  useEffect(() => {
+    const handleLoadModel = (e) => {
+      const url = e?.detail?.imageUrl;
+      if (url) {
+        setSelectedLocalPose(url);
+        setVtonResultImage(null);
+        setWornItems([]);
+        // Scroll mirror into view
+        const el = document.querySelector('.mirror-main-box');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    };
+
+    window.addEventListener('load-model-image', handleLoadModel);
+    return () => window.removeEventListener('load-model-image', handleLoadModel);
+  }, []);
+
   const [chatMessages, setChatMessages] = useState(initialChatMessages);
   const [inputText, setInputText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -194,6 +212,22 @@ const Studio = ({ addToCart, wishlist }) => {
 
   const filteredWardrobe = activeFilter === "All" ? displayItems : displayItems.filter(item => item.category === activeFilter);
 
+  // ------------------ Derived metrics for widgets ------------------
+  const totalItems = displayItems.length || 1;
+  const usedItemsCount = displayItems.filter(i => (i.usage || 0) > 0).length;
+  const utilizationPercent = Math.round((usedItemsCount / totalItems) * 100);
+
+  let sustainabilityGrade = 'C';
+  if (utilizationPercent >= 80) sustainabilityGrade = 'A';
+  else if (utilizationPercent >= 60) sustainabilityGrade = 'A-';
+  else if (utilizationPercent >= 40) sustainabilityGrade = 'B';
+
+  const totalPrice = displayItems.reduce((acc, it) => acc + (it.price || 0), 0);
+  const totalUsage = displayItems.reduce((acc, it) => acc + (it.usage || 1), 0);
+  const costPerWear = totalPrice / Math.max(totalUsage, 1);
+
+  const restyledCount = wornItems.filter(i => (i.status || '').toLowerCase() === 'dormant').length || 0;
+  // -----------------------------------------------------------------
   // Chat AI Logic
   const simulateAgent = async (agentName, prompt, userMessage) => {
     if (!apiKey) {
@@ -535,17 +569,17 @@ const Studio = ({ addToCart, wishlist }) => {
           <div className="mirror-bottom-widgets">
             <div className="premium-card widget-card">
               <div className="widget-header"><span style={{color:'#059669'}}>♻</span> SUSTAINABILITY</div>
-              <h3 className="widget-val">A-</h3>
-              <p className="widget-sub">72% utilization</p>
+              <h3 className="widget-val">{sustainabilityGrade}</h3>
+              <p className="widget-sub">{utilizationPercent}% utilization</p>
             </div>
             <div className="premium-card widget-card">
               <div className="widget-header"><span style={{color:'#5a4bda'}}>↗</span> COST / WEAR</div>
-              <h3 className="widget-val">$8.20</h3>
-              <p className="widget-sub">↓ 12% this month</p>
+              <h3 className="widget-val">₹{Number(costPerWear || 0).toFixed(2)}</h3>
+              <p className="widget-sub">based on your wardrobe</p>
             </div>
             <div className="premium-card widget-card">
               <div className="widget-header"><span style={{color:'#c2410c'}}>✦</span> RESTYLED</div>
-              <h3 className="widget-val">14</h3>
+              <h3 className="widget-val">{restyledCount}</h3>
               <p className="widget-sub">dormant pieces revived</p>
             </div>
           </div>
