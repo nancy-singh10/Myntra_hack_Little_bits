@@ -14,8 +14,6 @@ import Wishlist from './pages/Wishlist';
 
 
 
-import StylingCrewPage from './pages/StylingCrewPage';
-import DigitalWardrobe from './pages/DigitalWardrobe';
 import Studio from './pages/Studio';
 
 import './App.css';
@@ -23,6 +21,42 @@ import './App.css';
 function App() {
   const [wishlist, setWishlist] = useState({});
   const [cartItems, setCartItems] = useState([]);
+  
+  const [squads, setSquads] = useState([
+    {
+      id: 'squad_1',
+      name: "Ananya's Bday Squad",
+      icon: '🎂',
+      description: 'Shopping for birthday gifts & outfits for Ananya! 🎉',
+      members: ['You', 'Neha', 'Priya', 'Rohan'],
+      createdAt: 'Yesterday',
+      itemCount: 2,
+      totalAmount: 1693
+    },
+    {
+      id: 'squad_2',
+      name: 'Goa Trip Outfits',
+      icon: '🏖️',
+      description: 'Beachwear, co-ords & sunglasses for the Goa trip! 🌴',
+      members: ['You', 'Amit', 'Sneha'],
+      createdAt: '3 days ago',
+      itemCount: 3,
+      totalAmount: 2450
+    },
+    {
+      id: 'squad_3',
+      name: 'Office Diwali Party',
+      icon: '✨',
+      description: 'Ethnic kurtas & sarees for Diwali celebration at work!',
+      members: ['You', 'Karan', 'Meera', 'Vikram', 'Divya'],
+      createdAt: '1 week ago',
+      itemCount: 4,
+      totalAmount: 4200
+    }
+  ]);
+  const [activeSquadId, setActiveSquadId] = useState(null);
+
+  const activeSquad = squads.find(s => s.id === activeSquadId) || squads[0];
 
   const toggleWishlist = (e, id) => {
     e.preventDefault();
@@ -49,25 +83,28 @@ function App() {
       <Header />
       
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home squadInfo={activeSquad} addToCart={addToCart} />} />
         <Route path="/women" element={<Women />} />
         <Route path="/product/:id" element={<ProductDetails addToCart={addToCart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
-        <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} />} />
+        <Route path="/cart" element={
+          <Cart
+            cartItems={cartItems}
+            setCartItems={setCartItems}
+            squads={squads}
+            setSquads={setSquads}
+            activeSquadId={activeSquadId}
+            setActiveSquadId={setActiveSquadId}
+          />
+        } />
         <Route path="/address" element={<Address />} />
         <Route path="/payment" element={<Payment />} />
         <Route path="/search" element={<Search wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
         <Route path="/wishlist" element={<Wishlist wishlist={wishlist} toggleWishlist={toggleWishlist} addToCart={addToCart} />} />
         
-        {/* New Multi-Agent Feature */}
-        <Route path="/styling-crew" element={<StylingCrewPage />} />
-        
-        {/* Generative Upcycling / Digital Wardrobe */}
-        <Route path="/wardrobe" element={<DigitalWardrobe />} />
-
         {/* Myntra Studio / Vitra Dashboard */}
         <Route path="/studio" element={<Studio addToCart={addToCart} wishlist={wishlist} />} />
 
-        <Route path="*" element={<Home />} />
+        <Route path="*" element={<Home squadInfo={activeSquad} addToCart={addToCart} />} />
       </Routes>
 
       <VoiceAssistant />

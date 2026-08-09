@@ -1,0 +1,489 @@
+.swipe-game-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.swipe-game-modal {
+  background: #ffffff;
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.swipe-game-header {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+  background: #ffffff;
+}
+
+.swipe-game-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.game-icon {
+  font-size: 24px;
+}
+
+.swipe-game-title-group h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #282c3f;
+}
+
+.squad-tag {
+  margin: 2px 0 0 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ff3f6c;
+}
+
+.close-game-btn {
+  background: #f5f5f6;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #535665;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.close-game-btn:hover {
+  background: #eaeaec;
+}
+
+/* Game Content */
+
+.swipe-game-content {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+}
+
+.swipe-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #f0f0f4;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.swipe-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff3f6c, #ff905a);
+  transition: width 0.3s ease;
+}
+
+.swipe-count-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #7e818c;
+  margin: 8px 0 16px 0;
+}
+
+/* Card Deck */
+
+.card-deck-container {
+  width: 100%;
+  height: 380px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+}
+
+.swipe-card {
+  width: 100%;
+  max-width: 320px;
+  height: 370px;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #eaeaec;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+}
+
+.swipe-card:active {
+  cursor: grabbing;
+}
+
+.swiping-right {
+  transform: translateX(400px) rotate(30deg) !important;
+  opacity: 0;
+  transition: transform 0.3s ease-in, opacity 0.3s ease-in !important;
+}
+
+.swiping-left {
+  transform: translateX(-400px) rotate(-30deg) !important;
+  opacity: 0;
+  transition: transform 0.3s ease-in, opacity 0.3s ease-in !important;
+}
+
+/* Stamps overlay */
+
+.stamp {
+  position: absolute;
+  top: 30px;
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  z-index: 10;
+  pointer-events: none;
+  transform: rotate(-15deg);
+}
+
+.stamp-like {
+  right: 20px;
+  color: #25d366;
+  border: 4px solid #25d366;
+}
+
+.stamp-nope {
+  left: 20px;
+  color: #ff3f6c;
+  border: 4px solid #ff3f6c;
+  transform: rotate(15deg);
+}
+
+/* Card Image */
+
+.card-image-container {
+  height: 250px;
+  width: 100%;
+  position: relative;
+  background: #f9fafb;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-badge {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+}
+
+/* Card Info */
+
+.card-info {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card-brand {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #535665;
+  letter-spacing: 0.5px;
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #282c3f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-price-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.card-price {
+  font-size: 14px;
+  font-weight: 800;
+  color: #282c3f;
+}
+
+.card-original-price {
+  font-size: 12px;
+  color: #94969f;
+  text-decoration: line-through;
+}
+
+.card-discount {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ff905a;
+}
+
+.squad-friends-liked {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #e11d48;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #ffe4e6;
+  padding: 2px 8px;
+  border-radius: 10px;
+  width: fit-content;
+}
+
+/* Action Buttons */
+
+.swipe-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.action-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.action-btn:hover {
+  transform: scale(1.1);
+}
+
+.btn-pass {
+  background: #ffffff;
+  color: #ff3f6c;
+  border: 2px solid #fee2e8;
+}
+
+.btn-superlike {
+  width: 46px;
+  height: 46px;
+  background: #ffffff;
+  border: 2px solid #fef08a;
+  font-size: 20px;
+}
+
+.btn-like {
+  background: linear-gradient(135deg, #ff3f6c, #ff6b8b);
+  color: #ffffff;
+}
+
+.swipe-tip-text {
+  font-size: 11px;
+  color: #94969f;
+  margin-top: 12px;
+}
+
+/* Summary View */
+
+.swipe-summary-content {
+  padding: 24px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.summary-banner {
+  text-align: center;
+  background: linear-gradient(135deg, #fff0f3, #fce7f3);
+  padding: 20px;
+  border-radius: 16px;
+}
+
+.trophy-icon {
+  font-size: 36px;
+}
+
+.summary-banner h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #be185d;
+  margin: 6px 0 4px 0;
+}
+
+.summary-banner p {
+  font-size: 12px;
+  color: #881337;
+  margin: 0;
+}
+
+.summary-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #282c3f;
+  margin: 0;
+}
+
+.section-desc {
+  font-size: 12px;
+  color: #696e79;
+  margin: 0 0 4px 0;
+}
+
+.matches-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.match-card {
+  display: flex;
+  gap: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px;
+  align-items: center;
+}
+
+.match-img {
+  width: 56px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.match-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.match-badge {
+  font-size: 10px;
+  font-weight: 800;
+  color: #15803d;
+  background: #dcfce7;
+  padding: 2px 6px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.match-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.match-friends {
+  font-size: 11px;
+  color: #4b5563;
+}
+
+.match-price {
+  font-size: 12px;
+  font-weight: 800;
+  color: #ff3f6c;
+}
+
+.user-likes-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.like-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f3f4f6;
+  padding: 4px 10px 4px 4px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.chip-img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.finish-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #ff3f6c, #ff6b8b);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(255, 63, 108, 0.3);
+  transition: transform 0.2s;
+}
+
+.finish-btn:hover {
+  transform: translateY(-2px);
+}

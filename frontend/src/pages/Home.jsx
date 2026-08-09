@@ -4,8 +4,9 @@ import HeroCarousel from '../components/HeroCarousel/HeroCarousel';
 import SectionHeading from '../components/SectionHeading/SectionHeading';
 import CategoryCarousel from '../components/CategoryCarousel/CategoryCarousel';
 import ShopByCategory from '../components/ShopByCategory/ShopByCategory';
+import SquadTopPicks from '../components/SquadTopPicks/SquadTopPicks';
 
-const Home = () => {
+const Home = ({ squadInfo, addToCart }) => {
   // Mock data for Budget Bargains
   const budgetItems = [
     { title: 'UNDER ₹ 1599', subtitle: 'Regal Lehengas', imageUrl: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=400' },
@@ -77,6 +78,9 @@ const Home = () => {
             10% Instant Discount*
           </div>
         </div>
+
+        {/* Dedicated Squad Top Picks Section */}
+        <SquadTopPicks squadInfo={squadInfo} onAddToCart={addToCart} />
 
         <SectionHeading title="BUDGET BARGAINS" />
         <CategoryCarousel items={budgetItems} type="budget" />

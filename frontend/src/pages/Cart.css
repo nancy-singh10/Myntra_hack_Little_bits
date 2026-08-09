@@ -806,3 +806,210 @@
   font-weight: 600;
 }
 
+/* Squad Game Button & Squad Banner Header */
+
+.squad-game-btn {
+  background: #ffffff;
+  color: #ff3f6c;
+  border: 1.5px solid #ff3f6c;
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.squad-game-btn:hover {
+  background: #fff0f3;
+}
+
+.game-cards-icon {
+  font-size: 16px;
+}
+
+.back-to-squads-btn {
+  background: #ffffff;
+  color: #535665;
+  border: 1px solid #d4d5d9;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  width: fit-content;
+  margin-bottom: 6px;
+  transition: all 0.2s;
+}
+
+.back-to-squads-btn:hover {
+  border-color: #ff3f6c;
+  color: #ff3f6c;
+}
+
+.squad-banner-header {
+  background: #fff0f3;
+  border: 1px solid #fecdd3;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.squad-banner-left {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.squad-banner-badge {
+  font-size: 10px;
+  font-weight: 800;
+  color: #ff3f6c;
+  letter-spacing: 0.5px;
+}
+
+.squad-banner-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #282c3f;
+  margin: 0;
+}
+
+.squad-banner-desc {
+  font-size: 12px;
+  color: #535665;
+  margin: 0;
+}
+
+.squad-members-avatars {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.member-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ff3f6c;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-member-pill {
+  background: #ffffff;
+  color: #25d366;
+  border: 1px dashed #25d366;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.add-member-pill:hover {
+  background: #f0fdf4;
+}
+
+/* Inline Typable Comment Input */
+
+.add-comment-input-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.comment-text-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #d4d5d9;
+  border-radius: 20px;
+  font-size: 12px;
+  font-family: inherit;
+  color: #282c3f;
+  background: #ffffff;
+  transition: border-color 0.2s;
+}
+
+.comment-text-input:focus {
+  outline: none;
+  border-color: #ff3f6c;
+}
+
+.voice-comment-btn {
+  background: #f5f5f6;
+  color: #282c3f;
+  border: 1px solid #d4d5d9;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.voice-comment-btn:hover {
+  background: #eaeaec;
+  border-color: #ff3f6c;
+  color: #ff3f6c;
+}
+
+.voice-comment-btn.recording {
+  background: #ffe4e6;
+  color: #ff3f6c;
+  border-color: #ff3f6c;
+  animation: pulseRed 1.5s infinite;
+}
+
+.send-comment-btn {
+  background: #ff3f6c;
+  color: #ffffff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.send-comment-btn:hover {
+  opacity: 0.9;
+}
+
+
+.edit-squad-link {
+  background: #ffffff;
+  border: 1px solid #d4d5d9;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #535665;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-squad-link:hover {
+  border-color: #ff3f6c;
+  color: #ff3f6c;
+}
+
+

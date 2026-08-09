@@ -1,0 +1,257 @@
+.squad-selector-container {
+  padding: 24px 0;
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+.squad-selector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.squad-badge-pill {
+  display: inline-block;
+  background: #fff0f3;
+  color: #ff3f6c;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+}
+
+.squad-selector-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #282c3f;
+  margin: 0 0 6px 0;
+}
+
+.squad-selector-subtitle {
+  font-size: 13px;
+  color: #696e79;
+  margin: 0;
+  max-width: 600px;
+}
+
+.create-new-squad-btn {
+  background: linear-gradient(135deg, #ff3f6c 0%, #ff6b8b 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(255, 63, 108, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.create-new-squad-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(255, 63, 108, 0.4);
+}
+
+.squads-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.squad-card {
+  background: #ffffff;
+  border: 1.5px solid #eaeaec;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.squad-card:hover {
+  border-color: #ff3f6c;
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(255, 63, 108, 0.12);
+}
+
+.active-squad-card {
+  border-color: #ff3f6c;
+  background: #fff8f9;
+}
+
+.squad-card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.squad-icon {
+  font-size: 28px;
+  background: #f0f4ff;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.squad-card-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.squad-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: #282c3f;
+  margin: 0;
+}
+
+.squad-created-date {
+  font-size: 11px;
+  color: #94969f;
+}
+
+.squad-desc {
+  font-size: 12px;
+  color: #535665;
+  font-style: italic;
+  margin: 0;
+  line-height: 1.4;
+  background: #f9fafb;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.squad-stats-row {
+  display: flex;
+  justify-content: space-between;
+  background: #fdf2f4;
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+
+.squad-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #7e818c;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-size: 13px;
+  font-weight: 800;
+  color: #282c3f;
+}
+
+.squad-members-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.members-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #535665;
+}
+
+.members-avatars {
+  display: flex;
+  align-items: center;
+  gap: -4px;
+}
+
+.member-circle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #ff3f6c;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ffffff;
+}
+
+.more-members-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: #535665;
+  margin-left: 4px;
+}
+
+.enter-squad-btn {
+  background: #ffffff;
+  color: #ff3f6c;
+  border: 1.5px solid #ff3f6c;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: auto;
+}
+
+.enter-squad-btn:hover {
+  background: #ff3f6c;
+  color: #ffffff;
+}
+
+/* Create Card */
+
+.create-card {
+  border: 2px dashed #ff3f6c;
+  background: #fff5f7;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.create-card-icon {
+  font-size: 32px;
+}
+
+.create-card h3 {
+  font-size: 16px;
+  font-weight: 800;
+  color: #282c3f;
+  margin: 0;
+}
+
+.create-card p {
+  font-size: 12px;
+  color: #696e79;
+  margin: 0;
+}
+
+.create-action-btn {
+  background: #ff3f6c;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}

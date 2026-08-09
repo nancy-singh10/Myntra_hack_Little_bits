@@ -1,13 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import CreateSquadModal from '../components/CreateSquadModal/CreateSquadModal';
+import SquadSwipeGame from '../components/SquadSwipeGame/SquadSwipeGame';
+import SquadSelector from '../components/SquadSelector/SquadSelector';
 import './Cart.css';
 
-
-const Cart = ({ cartItems, setCartItems }) => {
+const Cart = ({
+  cartItems,
+  setCartItems,
+  squads,
+  setSquads,
+  activeSquadId,
+  setActiveSquadId
+}) => {
   const navigate = useNavigate();
 
   const [isSplitBagActive, setIsSplitBagActive] = React.useState(false);
   const [isPollActive, setIsPollActive] = React.useState(false);
+  const [isGameActive, setIsGameActive] = React.useState(false);
+  const [showCreateModal, setShowCreateModal] = React.useState(false);
+  const [showSelector, setShowSelector] = React.useState(true);
+
+  const currentSquad = squads.find(s => s.id === activeSquadId) || null;
+
   const [itemVotes, setItemVotes] = React.useState({ 'neha_mock_1': 2, 'ananya_mock_1': 1 }); // Pre-filled votes for demo
   const [userVotes, setUserVotes] = React.useState({});
   const [floatingEmojis, setFloatingEmojis] = React.useState([]);
@@ -28,13 +43,64 @@ const Cart = ({ cartItems, setCartItems }) => {
     ]
   });
 
+  const [newCommentText, setNewCommentText] = useState({});
 
+  const handleAddComment = (itemId) => {
+    const text = newCommentText[itemId]?.trim();
+    if (!text) return;
+
+    setItemComments(prev => ({
+      ...prev,
+      [itemId]: [...(prev[itemId] || []), { id: Date.now(), user: 'You', text, isVoiceNote: false }]
+    }));
+
+    setNewCommentText(prev => ({ ...prev, [itemId]: '' }));
+  };
+
+  const handleCreateSquad = (newSquadData) => {
+    const newSquad = {
+      id: `squad_${Date.now()}`,
+      icon: '🛍️',
+      itemCount: 1,
+      totalAmount: 1693,
+      ...newSquadData
+    };
+    setSquads(prev => [...prev, newSquad]);
+    setActiveSquadId(newSquad.id);
+    setShowCreateModal(false);
+    setShowSelector(false);
+  };
+
+  const handleSelectSquad = (id) => {
+    setActiveSquadId(id);
+    setShowSelector(false);
+  };
+
+  const handleFinishGame = ({ userLikes, mutualMatches }) => {
+    if (mutualMatches && mutualMatches.length > 0) {
+      const topMatch = mutualMatches[0];
+      setCartItems(prev => {
+        if (prev.some(i => i.id === topMatch.id || i.id === `${topMatch.id}_shared`)) return prev;
+        return [...prev, {
+          id: `match_${topMatch.id}`,
+          brand: topMatch.brand,
+          title: topMatch.title,
+          imageUrl: topMatch.imageUrl,
+          price: topMatch.price,
+          originalPrice: topMatch.originalPrice,
+          discount: topMatch.discount,
+          size: 'M',
+          color: 'Default',
+          quantity: 1,
+          isShared: true,
+          addedBy: 'Squad Match'
+        }];
+      });
+    }
+  };
 
   const handleVoiceNoteReal = (itemId) => {
-    // Pure mock to guarantee 100% success during the live hackathon demo
-    // Bypasses any browser microphone permission hangs
     setIsRecording(itemId);
-
     setTimeout(() => {
       setItemComments(prev => ({
         ...prev,
@@ -47,9 +113,8 @@ const Cart = ({ cartItems, setCartItems }) => {
   const handleAISummary = (itemId) => {
     setItemComments(prev => {
       const existing = prev[itemId] || [];
-      if (existing.some(c => c.isAI)) return prev; // Prevent duplicate AI summaries
+      if (existing.some(c => c.isAI)) return prev;
 
-      // Basic language detection mock based on comment contents
       const combinedText = existing.map(c => c.text.toLowerCase()).join(' ');
       const hindiKeywords = ['kaisa', 'rahega', 'hai', 'accha', 'mast', 'bhai', 'yaar', 'yeh', 'pasand'];
       const hasHindi = hindiKeywords.some(kw => combinedText.includes(kw));
@@ -74,9 +139,9 @@ const Cart = ({ cartItems, setCartItems }) => {
 
   const handlePlayAudio = (text) => {
     if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel(); // Stop any ongoing speech
+      window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1.1; // slightly faster for demo
+      utterance.rate = 1.1;
       window.speechSynthesis.speak(utterance);
     } else {
       alert("TTS simulated: " + text);
@@ -103,7 +168,7 @@ const Cart = ({ cartItems, setCartItems }) => {
         char: emoji,
         startX: rect.left + rect.width / 2,
         startY: rect.top,
-        randomX: (Math.random() - 0.5) * 80, // random drift left/right
+        randomX: (Math.random() - 0.5) * 80,
       };
 
       setFloatingEmojis(prev => [...prev, newEmoji]);
@@ -180,25 +245,11 @@ const Cart = ({ cartItems, setCartItems }) => {
 
   const handleVote = (id) => {
     if (userVotes[id]) {
-      // Unvote
-      setItemVotes(prev => ({
-        ...prev,
-        [id]: Math.max(0, (prev[id] || 0) - 1)
-      }));
-      setUserVotes(prev => ({
-        ...prev,
-        [id]: false
-      }));
+      setItemVotes(prev => ({ ...prev, [id]: Math.max(0, (prev[id] || 0) - 1) }));
+      setUserVotes(prev => ({ ...prev, [id]: false }));
     } else {
-      // Vote
-      setItemVotes(prev => ({
-        ...prev,
-        [id]: (prev[id] || 0) + 1
-      }));
-      setUserVotes(prev => ({
-        ...prev,
-        [id]: true
-      }));
+      setItemVotes(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
+      setUserVotes(prev => ({ ...prev, [id]: true }));
     }
   };
 
@@ -229,6 +280,16 @@ const Cart = ({ cartItems, setCartItems }) => {
 
   return (
     <div className="cart-container">
+      {/* Squad Swipe Game Modal */}
+      {isGameActive && (
+        <SquadSwipeGame
+          squadName={currentSquad?.name || "Ananya's Bday Squad"}
+          onClose={() => setIsGameActive(false)}
+          onFinishGame={handleFinishGame}
+        />
+      )}
+
+      {/* Main Cart Content */}
       <div className="cart-content">
         <div className="cart-left">
           <div className="cart-header">
@@ -249,21 +310,64 @@ const Cart = ({ cartItems, setCartItems }) => {
               </button>
             </div>
 
-            {isSplitBagActive && (
-              <div style={{ display: 'flex', gap: '10px' }}>
+            {isSplitBagActive && currentSquad && !showSelector && !showCreateModal && (
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
                 <button
                   className={`squad-poll-btn ${isPollActive ? 'active' : ''}`}
                   onClick={() => setIsPollActive(!isPollActive)}
                 >
-                  📊 {isPollActive ? 'End Poll' : 'Start Squad Poll'}
+                  📊 {isPollActive ? 'End Poll' : 'Poll'}
                 </button>
-                <button className="whatsapp-invite-btn" onClick={() => alert('WhatsApp invite link copied!')}>
+                <button className="whatsapp-invite-btn" onClick={() => {
+                  const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(`Join my squad "${currentSquad.name}" on Myntra! 🛍️`)}`;
+                  window.open(url, '_blank');
+                }}>
                   <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WA" className="wa-icon" />
                   Invite
+                </button>
+                <button className="squad-game-btn" onClick={() => setIsGameActive(true)}>
+                  <span className="game-cards-icon">🎴</span>
+                  Game
                 </button>
               </div>
             )}
           </div>
+
+          {/* Conditional Views for Split Bag */}
+          {isSplitBagActive && showCreateModal ? (
+            <CreateSquadModal
+              onCreateSquad={handleCreateSquad}
+              onCancel={() => setShowCreateModal(false)}
+            />
+          ) : isSplitBagActive && (showSelector || !currentSquad) ? (
+            <SquadSelector
+              squads={squads}
+              onSelectSquad={handleSelectSquad}
+              onCreateNewSquad={() => setShowCreateModal(true)}
+            />
+          ) : (
+            <>
+              {isSplitBagActive && currentSquad && (
+                <div className="squad-banner-header">
+                  <div className="squad-banner-left">
+                    <button className="back-to-squads-btn" onClick={() => setShowSelector(true)}>
+                      ← All Squads
+                    </button>
+                    <span className="squad-banner-badge">ACTIVE SQUAD</span>
+                    <h4 className="squad-banner-title">{currentSquad.name}</h4>
+                    {currentSquad.description && <p className="squad-banner-desc">"{currentSquad.description}"</p>}
+                    <div className="squad-members-avatars">
+                      {currentSquad.members?.map((m, idx) => (
+                        <span key={idx} className="member-avatar" title={m}>{m[0]}</span>
+                      ))}
+                      <span className="add-member-pill" onClick={() => {
+                        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(`Join my squad "${currentSquad.name}" on Myntra! 🛍️`)}`;
+                        window.open(url, '_blank');
+                      }}>+ Add</span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
           {isSplitBagActive && (
             <div className="gamified-savings">
@@ -387,6 +491,30 @@ const Cart = ({ cartItems, setCartItems }) => {
                         )}
                       </div>
                     ))}
+
+                    {/* Inline Typable Comment & Voice Message Input Box */}
+                    <div className="add-comment-input-row">
+                      <input
+                        type="text"
+                        className="comment-text-input"
+                        placeholder="Type a comment or record a voice note..."
+                        value={newCommentText[item.id] || ''}
+                        onChange={(e) => setNewCommentText(prev => ({ ...prev, [item.id]: e.target.value }))}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleAddComment(item.id);
+                        }}
+                      />
+                      <button
+                        className={`voice-comment-btn ${isRecording === item.id ? 'recording' : ''}`}
+                        onClick={() => handleVoiceNoteReal(item.id)}
+                        title="Send Voice Message"
+                      >
+                        {isRecording === item.id ? '🔴 Recording...' : '🎙️ Voice'}
+                      </button>
+                      <button className="send-comment-btn" onClick={() => handleAddComment(item.id)}>
+                        Send
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -398,6 +526,8 @@ const Cart = ({ cartItems, setCartItems }) => {
               </div>
             )}
           </div>
+          </>
+          )}
         </div>
 
         <div className="cart-right">

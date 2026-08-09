@@ -1,0 +1,184 @@
+.create-squad-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 15px;
+  background: linear-gradient(135deg, #fff5f7 0%, #f0f4ff 100%);
+  border-radius: 16px;
+  margin-bottom: 25px;
+  box-shadow: 0 10px 25px rgba(255, 63, 108, 0.08);
+}
+
+.create-squad-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 540px;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid #fee2e8;
+}
+
+.create-squad-badge {
+  display: inline-block;
+  background: #fff0f3;
+  color: #ff3f6c;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+.create-squad-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #282c3f;
+  margin: 0 0 8px 0;
+}
+
+.create-squad-subtitle {
+  font-size: 13px;
+  color: #696e79;
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+}
+
+.create-squad-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #282c3f;
+}
+
+.squad-input,
+.squad-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #d4d5d9;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #282c3f;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.squad-input:focus,
+.squad-textarea:focus {
+  outline: none;
+  border-color: #ff3f6c;
+  box-shadow: 0 0 0 3px rgba(255, 63, 108, 0.15);
+}
+
+.squad-textarea {
+  resize: vertical;
+}
+
+.invite-preview-box {
+  background: #f0fdf4;
+  border: 1.5px dashed #25d366;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.invite-box-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #15803d;
+}
+
+.wa-icon-large {
+  font-size: 18px;
+}
+
+.invite-box-text {
+  font-size: 12px;
+  color: #166534;
+  margin: 0;
+}
+
+.whatsapp-share-btn {
+  background-color: #25d366;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+  box-shadow: 0 4px 10px rgba(37, 211, 102, 0.25);
+}
+
+.whatsapp-share-btn:hover {
+  background-color: #1da851;
+}
+
+.wa-btn-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.cancel-squad-btn {
+  background: #f5f5f6;
+  color: #535665;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cancel-squad-btn:hover {
+  background: #eaeaec;
+}
+
+.submit-squad-btn {
+  flex: 1;
+  background: linear-gradient(135deg, #ff3f6c 0%, #ff6b8b 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(255, 63, 108, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.submit-squad-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 63, 108, 0.4);
+}

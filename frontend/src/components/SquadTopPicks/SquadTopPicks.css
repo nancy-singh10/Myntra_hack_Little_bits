@@ -1,0 +1,168 @@
+.squad-top-picks-section {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.squad-picks-subhead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  margin: -10px 0 25px 0;
+  font-size: 13px;
+  color: #535665;
+  font-weight: 600;
+}
+
+.squad-icon-badge {
+  background: linear-gradient(135deg, #ff3f6c, #ff905a);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+}
+
+.squad-picks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 24px;
+}
+
+.squad-product-card {
+  background: #ffffff;
+  border: 1px solid #eaeaec;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+}
+
+.squad-product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  border-color: #fee2e8;
+}
+
+.squad-card-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  background: #f9fafb;
+  overflow: hidden;
+}
+
+.squad-product-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.squad-product-card:hover .squad-product-img {
+  transform: scale(1.04);
+}
+
+.squad-match-tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #be185d;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  border: 1px solid #fbcfe8;
+}
+
+.squad-product-info {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.squad-product-brand {
+  font-size: 13px;
+  font-weight: 800;
+  color: #282c3f;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.squad-product-title {
+  font-size: 13px;
+  color: #535665;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.squad-reason-text {
+  font-size: 11px;
+  color: #15803d;
+  background: #f0fdf4;
+  padding: 2px 8px;
+  border-radius: 6px;
+  width: fit-content;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.squad-product-price-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.squad-current-price {
+  font-size: 15px;
+  font-weight: 800;
+  color: #282c3f;
+}
+
+.squad-original-price {
+  font-size: 13px;
+  color: #7e818c;
+  text-decoration: line-through;
+}
+
+.squad-discount-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ff905a;
+}
+
+.squad-card-actions {
+  margin-top: auto;
+}
+
+.squad-add-btn {
+  width: 100%;
+  background: #ffffff;
+  color: #ff3f6c;
+  border: 1.5px solid #ff3f6c;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.squad-add-btn:hover {
+  background: #ff3f6c;
+  color: #ffffff;
+}

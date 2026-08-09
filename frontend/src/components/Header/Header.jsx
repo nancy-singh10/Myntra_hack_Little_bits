@@ -30,13 +30,6 @@ const Header = () => {
           <Link to="/studio" className="nav-item studio-link">
             STUDIO <span className="new-badge">NEW</span>
           </Link>
-
-          <Link to="/styling-crew" className={`nav-item ${location.pathname === '/styling-crew' ? 'active' : ''}`} style={{color: '#1976d2', fontWeight: 'bold'}}>
-            STYLING CREW <span className="new-badge" style={{background: '#1976d2'}}>AI</span>
-          </Link>
-          <Link to="/wardrobe" className={`nav-item ${location.pathname === '/wardrobe' ? 'active' : ''}`}>
-            WARDROBE
-          </Link>
         </nav>
       </div>
 
