@@ -174,7 +174,7 @@ const VirtualTryOnModal = ({ isOpen, onClose, garmentImage, userModel, setUserMo
                     onClick={handleGenerate}
                   >
                     {isGenerating ? (
-                      <span className="vton-loader">✨ Stitching Try-On (IDM-VTON)...</span>
+                      <span className="vton-loader">✨ Generating Try-On (DCI-VTON)...</span>
                     ) : (
                       "Try It On"
                     )}
