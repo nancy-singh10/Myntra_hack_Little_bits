@@ -9,9 +9,9 @@ from django.conf import settings
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import Product, Category, Cart, CartItem, Squad, SharedCartItem, ItemComment, UserSessionCart
-from .serializers import ProductSerializer, CategorySerializer, CartSerializer, CartItemSerializer, SquadSerializer, SharedCartItemSerializer, ItemCommentSerializer
 from PIL import Image, ImageFilter
+from .models import Product, Category, Cart, CartItem
+from .serializers import ProductSerializer, CategorySerializer, CartSerializer, CartItemSerializer
 
 @api_view(['GET'])
 def get_products(request, pk=None):
@@ -29,19 +29,6 @@ def get_categories(request):
     return Response(serializer.data)        
 
 # cart
-@api_view(['GET', 'POST'])
-def sync_cart(request):
-    user_id = request.GET.get('user_id', 'default_user')
-    cart, created = UserSessionCart.objects.get_or_create(user_id=user_id)
-    
-    if request.method == 'GET':
-        return Response({'cart_data': cart.cart_data})
-    
-    elif request.method == 'POST':
-        cart.cart_data = request.data.get('cart_data', [])
-        cart.save()
-        return Response({'status': 'success', 'cart_data': cart.cart_data})
-
 @api_view(['GET'])
 def get_cart(request):
     cart,created=Cart.objects.get_or_create(user=None)
@@ -191,50 +178,35 @@ def virtual_try_on(request):
         final_filename = f"tryon_{int(time.time()*1000)}.jpg"
         final_filepath = os.path.join(media_dir, final_filename)
 
-        import base64
-        from dotenv import load_dotenv
-        
-        # Explicitly load .env from the backend root
-        env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
-        load_dotenv(env_path)
-        
-        from google import genai
-        from google.genai import types
-        
-        api_key = os.environ.get('GEMINI_API_KEY')
-        if not api_key:
-            raise Exception("GEMINI_API_KEY not found in environment")
-            
-        ai = genai.Client(api_key=api_key)
-        
-        with open(temp_user_img_path, 'rb') as f:
-            person_b64 = base64.b64encode(f.read()).decode('utf-8')
-        with open(garment_img_path, 'rb') as f:
-            garment_b64 = base64.b64encode(f.read()).decode('utf-8')
-            
-        prompt = "Put the clothing shown in image 2 onto the person in image 1. Preserve the person's face, body proportions, pose, and background. Make the garment look naturally worn with realistic folds and lighting."
-        
-        response = ai.models.generate_content(
-            model='gemini-3.1-flash-image',
-            contents=[
-                prompt,
-                types.Part.from_dict({"inline_data": {"mime_type": "image/jpeg", "data": person_b64}}),
-                types.Part.from_dict({"inline_data": {"mime_type": "image/jpeg", "data": garment_b64}})
-            ]
-        )
-        
+        # 1. Attempt IDM-VTON / DCI-VTON diffusion space
         try:
-            image_data = response.candidates[0].content.parts[0].inline_data.data
-        except (IndexError, AttributeError):
-            raise Exception("Invalid response from Gemini API: missing inline_data")
-
-        if isinstance(image_data, str):
-            image_bytes = base64.b64decode(image_data)
-        else:
-            image_bytes = image_data
+            client = Client("yisol/IDM-VTON", token="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")
+            result = client.predict(
+                dict={
+                    'background': handle_file(temp_user_img_path),
+                    'layers': [],
+                    'composite': handle_file(temp_user_img_path)
+                },
+                garm_img=handle_file(garment_img_path),
+                garment_des="stylish fashion apparel",
+                is_checked=True,
+                is_checked_crop=False,
+                denoise_steps=30,
+                seed=42,
+                api_name="/tryon"
+            )
+            result_image = result[0]
+            result_path = result_image['path'] if isinstance(result_image, dict) else result_image
             
-        with open(final_filepath, 'wb') as f:
-            f.write(image_bytes)
+            # Load diffusion result, resize to padded size, and crop back to original proportions
+            diffusion_res = Image.open(result_path)
+            resized_res = diffusion_res.resize(resize_target, Image.Resampling.LANCZOS)
+            cropped_res = resized_res.crop(crop_box)
+            cropped_res.convert("RGB").save(final_filepath, "JPEG", quality=95)
+
+        except Exception as api_err:
+            print(f"Remote diffusion space busy/offline ({api_err}). Running DCI-VTON pipeline...")
+            process_vton_pipeline(temp_orig_user_img_path, garment_img_path, final_filepath, category)
 
         # Clean up temp files
         if os.path.exists(temp_user_img_path):
@@ -247,62 +219,7 @@ def virtual_try_on(request):
         return Response({'tryon_image_url': f'/media/tryon_results/{final_filename}'})
 
     except Exception as e:
-        print(f"Exception details: {str(e)}")
         import traceback
-        traceback.print_exc()
-        return JsonResponse({'error': str(e)}, status=500)
-
-@api_view(['GET', 'POST'])
-def squad_list_create(request):
-    if request.method == 'GET':
-        squads = Squad.objects.all().order_by('-created_at')
-        serializer = SquadSerializer(squads, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = SquadSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
-
-@api_view(['GET', 'DELETE'])
-def squad_detail(request, squad_id):
-    try:
-        squad = Squad.objects.get(id=squad_id)
-    except Squad.DoesNotExist:
-        return Response(status=404)
-        
-    if request.method == 'GET':
-        serializer = SquadSerializer(squad)
-        return Response(serializer.data)
-    elif request.method == 'DELETE':
-        squad.delete()
-        return Response(status=204)
-
-@api_view(['GET', 'POST'])
-def squad_items(request, squad_id):
-    if request.method == 'GET':
-        items = SharedCartItem.objects.filter(squad_id=squad_id)
-        serializer = SharedCartItemSerializer(items, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        data = request.data.copy()
-        data['squad'] = squad_id
-        serializer = SharedCartItemSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
-
-@api_view(['GET', 'POST'])
-def squad_comments(request, squad_id):
-    if request.method == 'GET':
-        comments = ItemComment.objects.filter(item__squad_id=squad_id)
-        serializer = ItemCommentSerializer(comments, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = ItemCommentSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
+        print("VTON VIEW ERROR TRACEBACK:")
+        print(traceback.format_exc())
+        return Response({'error': str(e)}, status=500)
