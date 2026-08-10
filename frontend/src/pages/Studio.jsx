@@ -7,6 +7,7 @@ import { allProducts } from '../data/mockProducts';
 // Mock Data (fallback)
 const wardrobeItems = [
   { id: 1, name: "Crochet Lace Top", brand: "Urbanic", category: "Tops", status: "loved", usage: 34, image: "/custom-top.png", price: 560 },
+  { id: 11, name: "Orange Tie-Front Top", brand: "Boutique", category: "Tops", status: "loved", usage: 10, image: "/orange_tie_top.png", price: 899 },
   { id: 2, name: "Baggy Jeans", brand: "Tokyo Talkies", category: "Bottoms", status: "rotation", usage: 12, image: "/custom-jeans.png", price: 1500 },
   { id: 3, name: "Fastrack Shades", brand: "Fastrack", category: "Accessories", status: "rotation", usage: 42, image: "/custom-sunglasses.png", price: 750 },
   { id: 4, name: "Cult Chunky Sneaker", brand: "Cult", category: "Shoes", status: "loved", usage: 18, image: "/custom-shoe.png", price: 4000 },
