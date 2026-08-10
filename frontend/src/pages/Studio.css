@@ -11,7 +11,7 @@
 
 .premium-studio-container {
   display: grid;
-  grid-template-columns: 320px 1fr 340px;
+  grid-template-columns: 320px 1fr 420px;
   gap: 25px;
   max-width: 1600px;
   margin: 0 auto;

@@ -60,20 +60,12 @@ const CreateSquadModal = ({ onCreateSquad, onCancel }) => {
             />
           </div>
 
-          <div className="invite-preview-box">
-            <div className="invite-box-header">
-              <span className="wa-icon-large">📱</span>
-              <span>Invite Friends via WhatsApp</span>
+          <div className="invite-preview-box" style={{ textAlign: 'center' }}>
+            <div className="invite-box-header" style={{ justifyContent: 'center' }}>
+              <span className="wa-icon-large">🔗</span>
+              <span>Invite Friends</span>
             </div>
-            <p className="invite-box-text">Share the invite link so squad members can join, swipe cards & vote!</p>
-            <button
-              type="button"
-              className="whatsapp-share-btn"
-              onClick={handleWhatsAppInvite}
-            >
-              <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WA" className="wa-btn-icon" />
-              {copied ? 'Invite Link Opened & Copied! ✅' : 'Invite via WhatsApp'}
-            </button>
+            <p className="invite-box-text">Once you create your squad, you'll get a magic invite link to share with your friends!</p>
           </div>
 
           <div className="form-actions">

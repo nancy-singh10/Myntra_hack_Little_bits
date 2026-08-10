@@ -9,4 +9,8 @@ urlpatterns = [
     path('cart/add/', views.add_to_cart),
     path('cart/remove/', views.remove_from_cart),
     path('try-on/', views.virtual_try_on),
+    path('squads/', views.squad_list_create),
+    path('squads/<int:squad_id>/', views.squad_detail),
+    path('squads/<int:squad_id>/items/', views.squad_items),
+    path('squads/<int:squad_id>/comments/', views.squad_comments),
 ]

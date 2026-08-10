@@ -27,6 +27,7 @@ const localPoses = [
 
 const initialChatMessages = [
   { type: 'system-intro' },
+  { type: 'demand-signal' },
   { type: 'proposal' },
   { type: 'alert' }
 ];
@@ -95,6 +96,21 @@ const Studio = ({ addToCart, wishlist }) => {
   const [chatMessages, setChatMessages] = useState(initialChatMessages);
   const [inputText, setInputText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  // Context states
+  const [currentLocation, setCurrentLocation] = useState("Indiranagar, Bengaluru (560038)");
+  const [currentWeather, setCurrentWeather] = useState("🌤️ 28°C, Humid");
+  const [isCalendarSynced, setIsCalendarSynced] = useState(true);
+  
+  // Modal states
+  const [isContextModalOpen, setIsContextModalOpen] = useState(false);
+  const [tempLocation, setTempLocation] = useState("Indiranagar, Bengaluru (560038)");
+  const [tempWeather, setTempWeather] = useState("🌤️ 28°C, Humid");
+  const [tempCalendarSync, setTempCalendarSync] = useState(true);
+  
+  const [calendarEvents, setCalendarEvents] = useState([
+    { type: "personal", date: "Saturday", title: "Friend's Haldi Ceremony" },
+    { type: "cultural", date: "Sunday", title: "Varamahalakshmi Festival" }
+  ]);
   const messagesEndRef = useRef(null);
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
@@ -212,22 +228,7 @@ const Studio = ({ addToCart, wishlist }) => {
 
   const filteredWardrobe = activeFilter === "All" ? displayItems : displayItems.filter(item => item.category === activeFilter);
 
-  // ------------------ Derived metrics for widgets ------------------
-  const totalItems = displayItems.length || 1;
-  const usedItemsCount = displayItems.filter(i => (i.usage || 0) > 0).length;
-  const utilizationPercent = Math.round((usedItemsCount / totalItems) * 100);
 
-  let sustainabilityGrade = 'C';
-  if (utilizationPercent >= 80) sustainabilityGrade = 'A';
-  else if (utilizationPercent >= 60) sustainabilityGrade = 'A-';
-  else if (utilizationPercent >= 40) sustainabilityGrade = 'B';
-
-  const totalPrice = displayItems.reduce((acc, it) => acc + (it.price || 0), 0);
-  const totalUsage = displayItems.reduce((acc, it) => acc + (it.usage || 1), 0);
-  const costPerWear = totalPrice / Math.max(totalUsage, 1);
-
-  const restyledCount = wornItems.filter(i => (i.status || '').toLowerCase() === 'dormant').length || 0;
-  // -----------------------------------------------------------------
   // Chat AI Logic
   const simulateAgent = async (agentName, prompt, userMessage) => {
     if (!apiKey) {
@@ -278,6 +279,44 @@ const Studio = ({ addToCart, wishlist }) => {
     setInputText("");
     setIsTyping(true);
 
+    if (currentInput.toLowerCase().includes("mumbai") || currentInput.toLowerCase().includes("travelling")) {
+      setTimeout(() => {
+        const newLocation = "Colaba, Mumbai (400001)";
+        const newEvents = [
+          { type: "personal", date: "Friday", title: "Beachfront Dinner" },
+          { type: "cultural", date: "Weekend", title: "Ganesh Chaturthi Prep" }
+        ];
+        setCurrentLocation(newLocation);
+        setCalendarEvents(newEvents);
+        
+        setChatMessages(prev => [
+          ...prev, 
+          { type: 'agent', sender: 'Stylist', text: 'I see you are heading to Mumbai! The coastal humidity is quite high right now.' },
+          { 
+            type: 'demand-signal', 
+            location: newLocation,
+            trend: 'Linen Blends & Breezy Silhouettes',
+            events: newEvents
+          }
+        ]);
+        setIsTyping(false);
+      }, 1500);
+      return;
+    }
+
+    if (currentInput.toLowerCase().includes("add event")) {
+      setTimeout(() => {
+        const newEvent = { type: "personal", date: "Next Week", title: "Office Offsite Party" };
+        setCalendarEvents(prev => [...prev, newEvent]);
+        setChatMessages(prev => [
+          ...prev, 
+          { type: 'agent', sender: 'Stylist', text: `Got it, I've added "Office Offsite Party" to your calendar context. I'll keep an eye out for smart-casual outfits that fit the local vibe.` }
+        ]);
+        setIsTyping(false);
+      }, 1000);
+      return;
+    }
+
     if (currentInput.toLowerCase().includes("presentation") || currentInput.toLowerCase().includes("office")) {
       setTimeout(() => {
         setChatMessages(prev => [
@@ -298,18 +337,21 @@ const Studio = ({ addToCart, wishlist }) => {
       return;
     }
 
+    // Context string for agents
+    const contextInfo = `Context: User is in ${currentLocation}. Weather is ${currentWeather}. Calendar Sync is ${isCalendarSynced ? 'ON' : 'OFF'}.`;
+
     // 1. Stylist Speaks
-    const stylistPrompt = "You are the Style Strategist. You know the user's wardrobe. Keep it to 2 short sentences. Format casually.";
+    const stylistPrompt = `You are the Style Strategist. You know the user's wardrobe. ${contextInfo} Keep it to 2 short sentences. Format casually.`;
     const stylistResponse = await simulateAgent("Stylist", stylistPrompt, currentInput);
     setChatMessages(prev => [...prev, { type: 'agent', sender: 'Stylist', text: stylistResponse }]);
 
     // 2. Trend Speaks
-    const trendPrompt = "You are the Trend Agent. Suggest something trendy related to what the Stylist said. Keep it to 1 short sentence.";
+    const trendPrompt = `You are the Trend Agent. Suggest something trendy related to what the Stylist said, factoring in the ${currentLocation} weather (${currentWeather}). Keep it to 1 short sentence.`;
     const trendResponse = await simulateAgent("Trend", trendPrompt, currentInput);
     setChatMessages(prev => [...prev, { type: 'agent', sender: 'Trend', text: trendResponse }]);
 
     // 3. Finance Speaks
-    const financePrompt = "You are the Finance Agent. Find discounts or Myntra Insider deals. Keep it to 1 short sentence.";
+    const financePrompt = `You are the Finance Agent. Find discounts or Myntra Insider deals for the suggested items. Keep it to 1 short sentence.`;
     const financeResponse = await simulateAgent("Finance", financePrompt, currentInput);
     setChatMessages(prev => [...prev, { type: 'agent', sender: 'Finance', text: financeResponse }]);
 
@@ -322,6 +364,55 @@ const Studio = ({ addToCart, wishlist }) => {
 
   return (
     <div className="premium-studio-page">
+      {isContextModalOpen && (
+        <div className="premium-modal-overlay">
+          <div className="premium-modal" style={{ maxWidth: '400px' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '20px' }}>Real-World Context</h3>
+            
+            <div style={{ textAlign: 'left', marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: '#555' }}>📍 Current Location / City</label>
+              <select 
+                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px' }}
+                value={tempLocation}
+                onChange={(e) => {
+                  setTempLocation(e.target.value);
+                  if(e.target.value.includes('Mumbai')) setTempWeather('🌦️ 31°C, High Humidity');
+                  else if(e.target.value.includes('Delhi')) setTempWeather('🔥 38°C, Dry Heat');
+                  else setTempWeather('🌤️ 28°C, Breezy');
+                }}
+              >
+                <option value="Indiranagar, Bengaluru (560038)">Indiranagar, Bengaluru (560038)</option>
+                <option value="Colaba, Mumbai (400001)">Colaba, Mumbai (400001)</option>
+                <option value="Connaught Place, Delhi (110001)">Connaught Place, Delhi (110001)</option>
+              </select>
+            </div>
+
+            <div style={{ textAlign: 'left', marginBottom: '25px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <input type="checkbox" checked={tempCalendarSync} onChange={(e) => setTempCalendarSync(e.target.checked)} style={{ width: '18px', height: '18px' }} />
+              <div>
+                <label style={{ fontSize: '14px', fontWeight: 'bold', display: 'block', color: '#111' }}>Sync Local & Personal Calendar</label>
+                <span style={{ fontSize: '11px', color: '#888' }}>Pulls cultural events based on city and personal schedule</span>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button className="premium-btn-secondary full-width" onClick={() => setIsContextModalOpen(false)}>Cancel</button>
+              <button className="premium-btn-primary full-width" onClick={() => {
+                setCurrentLocation(tempLocation);
+                setCurrentWeather(tempWeather);
+                setIsCalendarSynced(tempCalendarSync);
+                setIsContextModalOpen(false);
+                
+                // Add a chat message saying context updated
+                setChatMessages(prev => [...prev, {
+                  type: 'agent', sender: 'System', text: `Context successfully updated to ${tempLocation}. Weather: ${tempWeather}. Calendar Sync is ${tempCalendarSync ? 'Active' : 'Inactive'}. I will now tailor my styling advice accordingly.`
+                }]);
+              }}>Save Context</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="premium-studio-container">
         
         {/* LEFT PANE: WARDROBE */}
@@ -406,10 +497,7 @@ const Studio = ({ addToCart, wishlist }) => {
               </div>
             </div>
 
-            <div className="mirror-top-right-badges">
-              <button className="event-badge">BOARD REVIEW • 14:00</button>
-              <div className="sustainability-badge">Sustainability A- • 0 new items</div>
-            </div>
+
 
             <div className="mirror-image-container" onClick={handleMirrorClick}>
               {showPoseSelector ? (
@@ -566,34 +654,32 @@ const Studio = ({ addToCart, wishlist }) => {
             </div>
           </div>
 
-          <div className="mirror-bottom-widgets">
-            <div className="premium-card widget-card">
-              <div className="widget-header"><span style={{color:'#059669'}}>♻</span> SUSTAINABILITY</div>
-              <h3 className="widget-val">{sustainabilityGrade}</h3>
-              <p className="widget-sub">{utilizationPercent}% utilization</p>
-            </div>
-            <div className="premium-card widget-card">
-              <div className="widget-header"><span style={{color:'#5a4bda'}}>↗</span> COST / WEAR</div>
-              <h3 className="widget-val">₹{Number(costPerWear || 0).toFixed(2)}</h3>
-              <p className="widget-sub">based on your wardrobe</p>
-            </div>
-            <div className="premium-card widget-card">
-              <div className="widget-header"><span style={{color:'#c2410c'}}>✦</span> RESTYLED</div>
-              <h3 className="widget-val">{restyledCount}</h3>
-              <p className="widget-sub">dormant pieces revived</p>
-            </div>
-          </div>
+
         </div>
 
         {/* RIGHT PANE: STYLE STRATEGIST (Chat) */}
         <div className="premium-card studio-chat-pane">
-          <div className="chat-header">
+          <div className="chat-header" style={{ paddingBottom: '10px', borderBottom: 'none' }}>
             <div className="chat-avatar">✧</div>
             <div className="chat-header-info">
               <h3>Style Strategist</h3>
               <p>Knows your closet • Suggesting for today</p>
             </div>
             <button className="chat-history-btn">History</button>
+          </div>
+          <div className="context-bar" style={{ padding: '0 25px 15px', borderBottom: '1px solid #f5f5f5', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <div className="weather-badge" style={{ background: '#f0f4ff', color: '#3b5bdb', padding: '6px 12px', borderRadius: '15px', fontSize: '11px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              {currentWeather}
+            </div>
+            <div className="weather-badge" style={{ background: '#f3f0ff', color: '#5f3dc4', padding: '6px 12px', borderRadius: '15px', fontSize: '11px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              📍 {currentLocation.split(',')[0]}
+            </div>
+            <button 
+              onClick={() => setIsContextModalOpen(true)}
+              style={{ marginLeft: 'auto', background: 'white', border: '1px solid #ddd', padding: '6px 12px', borderRadius: '15px', fontSize: '11px', fontWeight: '600', cursor: 'pointer' }}
+            >
+              ⚙️ Adjust Context
+            </button>
           </div>
 
           <div className="chat-messages">
@@ -650,6 +736,25 @@ const Studio = ({ addToCart, wishlist }) => {
                   </div>
                 );
               }
+              if (msg.type === 'demand-signal') {
+                return (
+                  <div key={idx} className="before-you-buy-card" style={{ background: '#fff8f0', borderColor: '#ffd8a8', marginTop: 15 }}>
+                    <div className="before-you-buy-header" style={{ color: '#e67700' }}>
+                      <span>📈</span> LOCAL PULSE: {msg.location || currentLocation}
+                    </div>
+                    <div style={{ marginBottom: 12 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#333' }}>Upcoming Context:</div>
+                      <ul style={{ margin: '5px 0 10px 20px', padding: 0, fontSize: 12, color: '#555' }}>
+                        {(msg.events || calendarEvents).map((ev, i) => (
+                          <li key={i}><strong>{ev.date}:</strong> {ev.title} <em>({ev.type})</em></li>
+                        ))}
+                      </ul>
+                    </div>
+                    <p style={{ fontSize: 13, marginBottom: 15, color: '#444', lineHeight: 1.5 }}>Tracking this local context and <strong>real-time checkout velocity</strong>, <span className="highlight-text">{msg.trend || 'Festive Kurtas'}</span> are highly trending. Creator trends show a 40% spike in styling this locally.</p>
+                    <button className="premium-btn-secondary full-width" style={{background: '#fff4e6', color: '#e67700', borderColor: 'transparent', fontSize: 12}}>Sync Catalog to {msg.location || currentLocation}</button>
+                  </div>
+                );
+              }
               
               if (msg.type === 'presentation-proposal') {
                 return (
@@ -699,9 +804,9 @@ const Studio = ({ addToCart, wishlist }) => {
 
           <form className="chat-input-area" onSubmit={handleSendMessage}>
             <div className="suggestion-chips">
+              <span onClick={() => {setInputText("Travelling to Mumbai");}}>📍 Travelling to Mumbai</span>
+              <span onClick={() => {setInputText("Add event: Office Offsite");}}>📅 Add event: Office Offsite</span>
               <span onClick={() => {setInputText("Style for office");}}>Style for office</span>
-              <span onClick={() => {setInputText("Pack for Paris");}}>Pack for Paris</span>
-              <span onClick={() => {setInputText("Restyle Slip");}}>Restyle Slip</span>
             </div>
             <div className="chat-input-box">
               <input 

@@ -48,13 +48,43 @@ function App() {
       name: 'Office Diwali Party',
       icon: '✨',
       description: 'Ethnic kurtas & sarees for Diwali celebration at work!',
-      members: ['You', 'Karan', 'Meera', 'Vikram', 'Divya'],
+      members: ['You', 'Neha', 'Sonia'],
       createdAt: '1 week ago',
-      itemCount: 4,
-      totalAmount: 4200
+      itemCount: 1,
+      totalAmount: 950
     }
   ]);
-  const [activeSquadId, setActiveSquadId] = useState(null);
+  const getInitialSquadId = () => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const joinSquad = params.get('join_squad');
+      if (joinSquad) return isNaN(Number(joinSquad)) ? joinSquad : Number(joinSquad);
+    }
+    return 'squad_1';
+  };
+  const [activeSquadId, setActiveSquadId] = useState(getInitialSquadId());
+
+  React.useEffect(() => {
+    fetch('http://localhost:8000/squads/')
+      .then(res => res.json())
+      .then(data => {
+        if(data && data.length > 0) {
+            // Merge DB squads with mock squads
+            const formattedDbSquads = data.map(s => ({
+                id: s.id,
+                name: s.name,
+                icon: '🛍️',
+                description: s.description,
+                members: s.members || [],
+                createdAt: 'Just now',
+                itemCount: 0,
+                totalAmount: 0
+            }));
+            setSquads(prev => [...prev.filter(s => !formattedDbSquads.some(db => db.id === s.id)), ...formattedDbSquads]);
+        }
+      })
+      .catch(err => console.error("Could not fetch squads", err));
+  }, []);
 
   const activeSquad = squads.find(s => s.id === activeSquadId) || squads[0];
 

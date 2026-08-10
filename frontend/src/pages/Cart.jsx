@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CreateSquadModal from '../components/CreateSquadModal/CreateSquadModal';
 import SquadSwipeGame from '../components/SquadSwipeGame/SquadSwipeGame';
@@ -14,14 +14,79 @@ const Cart = ({
   setActiveSquadId
 }) => {
   const navigate = useNavigate();
+  const searchParams = new URLSearchParams(window.location.search);
+  const currentUser = searchParams.get('user') || 'You';
+  const joinSquadId = searchParams.get('join_squad');
 
-  const [isSplitBagActive, setIsSplitBagActive] = React.useState(false);
+  const [isSplitBagActive, setIsSplitBagActive] = React.useState(!!joinSquadId);
   const [isPollActive, setIsPollActive] = React.useState(false);
   const [isGameActive, setIsGameActive] = React.useState(false);
   const [showCreateModal, setShowCreateModal] = React.useState(false);
   const [showSelector, setShowSelector] = React.useState(true);
 
   const currentSquad = squads.find(s => s.id === activeSquadId) || null;
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    if (isSplitBagActive && currentSquad) {
+        const ws = new WebSocket(`ws://localhost:8000/ws/squad/${currentSquad.id}/`);
+        
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log("WS MESSAGE RECEIVED:", data);
+            if (data.action === 'emoji_received') {
+                const newEmoji = {
+                    id: Date.now() + Math.random(),
+                    char: data.emoji,
+                    startX: window.innerWidth / 2, // Default fallback if no rect
+                    startY: window.innerHeight / 2,
+                    randomX: (Math.random() - 0.5) * 80,
+                };
+                setFloatingEmojis(prev => [...prev, newEmoji]);
+                setTimeout(() => {
+                    setFloatingEmojis(prev => prev.filter(e => e.id !== newEmoji.id));
+                }, 2000);
+            } else if (data.action === 'comment_received') {
+                setItemComments(prev => {
+                    const existing = prev[data.item_id] || [];
+                    if (existing.some(c => c.id === data.comment_id)) return prev;
+                    return {
+                        ...prev,
+                        [data.item_id]: [...existing, { id: data.comment_id, user: data.user, text: data.comment, isVoiceNote: false }]
+                    };
+                });
+            } else if (data.action === 'user_joined') {
+                if (data.user !== currentUser) {
+                   setSquads(prev => prev.map(s => {
+                       if (s.id === currentSquad.id && !s.members.includes(data.user)) {
+                           return { ...s, members: [...s.members, data.user] };
+                       }
+                       return s;
+                   }));
+                }
+            }
+        };
+
+        setSocket(ws);
+
+        if (String(joinSquadId) === String(currentSquad.id) && currentUser !== 'You') {
+            ws.onopen = () => {
+                ws.send(JSON.stringify({
+                    action: 'join_squad',
+                    user: currentUser
+                }));
+            };
+            setSquads(prev => prev.map(s => {
+                if (s.id === currentSquad.id && !s.members.includes(currentUser)) {
+                    return { ...s, members: [...s.members, currentUser] };
+                }
+                return s;
+            }));
+            setShowSelector(false);
+        }
+        return () => ws.close();
+    }
+  }, [isSplitBagActive, currentSquad]);
 
   const [itemVotes, setItemVotes] = React.useState({ 'neha_mock_1': 2, 'ananya_mock_1': 1 }); // Pre-filled votes for demo
   const [userVotes, setUserVotes] = React.useState({});
@@ -49,26 +114,92 @@ const Cart = ({
     const text = newCommentText[itemId]?.trim();
     if (!text) return;
 
+    const commentId = Date.now() + Math.random();
+    
     setItemComments(prev => ({
       ...prev,
-      [itemId]: [...(prev[itemId] || []), { id: Date.now(), user: 'You', text, isVoiceNote: false }]
+      [itemId]: [...(prev[itemId] || []), { id: commentId, user: currentUser, text, isVoiceNote: false }]
     }));
+
+    if (currentSquad && typeof currentSquad.id === 'number') {
+        fetch(`http://localhost:8000/squads/${currentSquad.id}/comments/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item: itemId, user: currentUser, text })
+        }).catch(err => console.error("Could not save comment", err));
+    }
+
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+            action: 'send_comment',
+            item_id: itemId,
+            comment_id: commentId,
+            comment: text,
+            user: currentUser
+        }));
+    }
 
     setNewCommentText(prev => ({ ...prev, [itemId]: '' }));
   };
 
-  const handleCreateSquad = (newSquadData) => {
-    const newSquad = {
-      id: `squad_${Date.now()}`,
-      icon: '🛍️',
-      itemCount: 1,
-      totalAmount: 1693,
-      ...newSquadData
-    };
-    setSquads(prev => [...prev, newSquad]);
-    setActiveSquadId(newSquad.id);
-    setShowCreateModal(false);
-    setShowSelector(false);
+  const handleCreateSquad = async (newSquadData) => {
+    try {
+        const res = await fetch('http://localhost:8000/squads/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: newSquadData.name,
+                description: newSquadData.description,
+                created_by: currentUser,
+                members: [currentUser]
+            })
+        });
+        
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error("Backend returned error:", res.status, errorText);
+            alert("Error creating squad: " + errorText);
+            return;
+        }
+        
+        const savedSquad = await res.json();
+        
+        const newSquad = {
+          id: savedSquad.id,
+          icon: '🛍️',
+          itemCount: 0,
+          totalAmount: 0,
+          name: savedSquad.name,
+          description: savedSquad.description,
+          members: savedSquad.members
+        };
+        setSquads(prev => [...prev, newSquad]);
+        setActiveSquadId(newSquad.id);
+        setShowCreateModal(false);
+        setShowSelector(false);
+    } catch (err) {
+        console.error("Failed to save squad", err);
+    }
+  };
+
+  const handleDeleteSquad = async (squadId) => {
+    if (!window.confirm("Are you sure you want to delete this squad? This action cannot be undone.")) return;
+    
+    try {
+        const res = await fetch(`http://localhost:8000/squads/${squadId}/`, {
+            method: 'DELETE'
+        });
+        
+        if (res.ok) {
+            setSquads(prev => prev.filter(s => s.id !== squadId));
+            setActiveSquadId(null);
+            setShowSelector(true);
+        } else {
+            alert("Failed to delete squad.");
+        }
+    } catch (err) {
+        console.error("Error deleting squad", err);
+    }
   };
 
   const handleSelectSquad = (id) => {
@@ -77,24 +208,31 @@ const Cart = ({
   };
 
   const handleFinishGame = ({ userLikes, mutualMatches }) => {
-    if (mutualMatches && mutualMatches.length > 0) {
-      const topMatch = mutualMatches[0];
+    if (userLikes && userLikes.length > 0) {
       setCartItems(prev => {
-        if (prev.some(i => i.id === topMatch.id || i.id === `${topMatch.id}_shared`)) return prev;
-        return [...prev, {
-          id: `match_${topMatch.id}`,
-          brand: topMatch.brand,
-          title: topMatch.title,
-          imageUrl: topMatch.imageUrl,
-          price: topMatch.price,
-          originalPrice: topMatch.originalPrice,
-          discount: topMatch.discount,
-          size: 'M',
-          color: 'Default',
-          quantity: 1,
-          isShared: true,
-          addedBy: 'Squad Match'
-        }];
+        let newItems = [...prev];
+        userLikes.forEach(match => {
+          const isMutual = match.likedByFriends && match.likedByFriends.length > 0;
+          const addedByStr = isMutual ? `Liked by both` : `Liked by ${currentUser}`;
+          
+          if (!newItems.some(i => i.id === match.id || i.id === `${match.id}_shared` || i.id === `match_${match.id}`)) {
+            newItems.push({
+              id: `match_${match.id}`,
+              brand: match.brand,
+              title: match.title,
+              imageUrl: match.imageUrl,
+              price: match.price,
+              originalPrice: match.originalPrice,
+              discount: match.discount,
+              size: 'M',
+              color: 'Default',
+              quantity: 1,
+              isShared: true,
+              addedBy: addedByStr
+            });
+          }
+        });
+        return newItems;
       });
     }
   };
@@ -160,6 +298,15 @@ const Cart = ({
 
   const handleReaction = (itemId, emoji, event) => {
     setReactions(prev => ({ ...prev, [itemId]: prev[itemId] === emoji ? null : emoji }));
+
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+            action: 'send_emoji',
+            item_id: itemId,
+            emoji: emoji,
+            user: currentUser
+        }));
+    }
 
     if (event) {
       const rect = event.currentTarget.getBoundingClientRect();
@@ -311,7 +458,7 @@ const Cart = ({
             </div>
 
             {isSplitBagActive && currentSquad && !showSelector && !showCreateModal && (
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <div className="squad-actions-group">
                 <button
                   className={`squad-poll-btn ${isPollActive ? 'active' : ''}`}
                   onClick={() => setIsPollActive(!isPollActive)}
@@ -319,8 +466,10 @@ const Cart = ({
                   📊 {isPollActive ? 'End Poll' : 'Poll'}
                 </button>
                 <button className="whatsapp-invite-btn" onClick={() => {
-                  const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(`Join my squad "${currentSquad.name}" on Myntra! 🛍️`)}`;
-                  window.open(url, '_blank');
+                  const inviteUrl = `${window.location.origin}/cart?join_squad=${currentSquad.id}&user=Seeta`;
+                  navigator.clipboard.writeText(inviteUrl);
+                  alert(`Invite link copied to clipboard!\nWe'll also open this link in a new tab for you to easily test it!`);
+                  window.open(inviteUrl, '_blank');
                 }}>
                   <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WA" className="wa-icon" />
                   Invite
@@ -348,23 +497,42 @@ const Cart = ({
           ) : (
             <>
               {isSplitBagActive && currentSquad && (
-                <div className="squad-banner-header">
+                <div className="squad-banner-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div className="squad-banner-left">
-                    <button className="back-to-squads-btn" onClick={() => setShowSelector(true)}>
-                      ← All Squads
-                    </button>
-                    <span className="squad-banner-badge">ACTIVE SQUAD</span>
-                    <h4 className="squad-banner-title">{currentSquad.name}</h4>
-                    {currentSquad.description && <p className="squad-banner-desc">"{currentSquad.description}"</p>}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <button className="back-squads-btn" onClick={() => setShowSelector(true)} style={{
+                        background: '#fff', border: '1px solid #ccc', borderRadius: '4px', padding: '4px 8px', cursor: 'pointer', fontSize: '0.8rem'
+                      }}>
+                        ← All Squads
+                      </button>
+                      <span className="squad-banner-badge" style={{ fontSize: '0.7rem', background: '#ff3f6c', color: 'white', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>ACTIVE SQUAD</span>
+                    </div>
+                    <h4 className="squad-banner-title" style={{ margin: '8px 0 4px 0', fontSize: '1.2rem' }}>{currentSquad.name}</h4>
+                    {currentSquad.description && <p className="squad-banner-desc" style={{ margin: '0 0 10px 0', color: '#666', fontStyle: 'italic', fontSize: '0.9rem' }}>"{currentSquad.description}"</p>}
                     <div className="squad-members-avatars">
                       {currentSquad.members?.map((m, idx) => (
                         <span key={idx} className="member-avatar" title={m}>{m[0]}</span>
                       ))}
                       <span className="add-member-pill" onClick={() => {
-                        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(`Join my squad "${currentSquad.name}" on Myntra! 🛍️`)}`;
-                        window.open(url, '_blank');
+                        const inviteUrl = `${window.location.origin}/cart?join_squad=${currentSquad.id}&user=Seeta`;
+                        navigator.clipboard.writeText(inviteUrl);
+                        alert(`Invite link copied to clipboard!\nOpen this link in a new incognito window to join as Seeta.`);
                       }}>+ Add</span>
                     </div>
+                  </div>
+                  
+                  <div className="squad-banner-right">
+                    <button className="delete-squad-btn" onClick={() => handleDeleteSquad(currentSquad.id)} style={{
+                        background: 'transparent',
+                        border: '1px solid #ff4d4f',
+                        color: '#ff4d4f',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '0.8rem'
+                    }}>
+                      🗑️ Delete Squad
+                    </button>
                   </div>
                 </div>
               )}
@@ -389,8 +557,8 @@ const Cart = ({
                   <img src={item.imageUrl} alt={item.title} className="cart-item-image" />
                   <div className="cart-item-details">
                     {isSplitBagActive && (
-                      <div className={`user-tag ${item.addedBy === 'Neha' ? 'tag-friend' : item.addedBy === 'Ananya' ? 'tag-friend' : 'tag-you'}`}>
-                        {item.addedBy === 'Neha' ? 'Added by Neha' : item.addedBy === 'Ananya' ? 'Added by Ananya' : 'Added by You'}
+                      <div className={`user-tag ${item.addedBy === currentUser || item.addedBy?.startsWith('Liked by You') ? 'tag-you' : 'tag-friend'}`}>
+                        {(item.addedBy || 'Added by You').toUpperCase()}
                       </div>
                     )}
                     <div className="cart-item-brand">{item.brand}</div>
@@ -473,14 +641,14 @@ const Cart = ({
                 {isSplitBagActive && (
                   <div className="item-comments-section">
                     {(itemComments[item.id] || []).map(comment => (
-                      <div key={comment.id} className={`comment-bubble ${comment.isAI ? 'comment-ai' : comment.user === 'You' ? 'comment-yours' : 'comment-theirs'}`}>
-                        <div className="comment-author">{comment.user}</div>
+                      <div key={comment.id} className={`comment-bubble ${comment.isAI ? 'comment-ai' : comment.user === currentUser ? 'comment-yours' : 'comment-theirs'}`}>
+                        <div className="comment-author">{comment.user === currentUser ? 'You' : comment.user}</div>
                         <div className="comment-text">
                           {comment.isVoiceNote && <span className="voice-icon">🎙️</span>}
                           {comment.text}
                           <button className="play-tts-btn" onClick={() => handlePlayAudio(comment.text)} title="Read Aloud">▶️</button>
                         </div>
-                        {comment.user === 'You' && (
+                        {comment.user === currentUser && (
                           <button
                             className="delete-comment-btn"
                             onClick={() => handleRemoveComment(item.id, comment.id)}
@@ -530,6 +698,7 @@ const Cart = ({
           )}
         </div>
 
+        {(!isSplitBagActive || (isSplitBagActive && !showCreateModal && !showSelector && currentSquad)) && (
         <div className="cart-right">
           <div className="price-details-card">
             <h4 className="price-header">PRICE DETAILS ({displayItems.length} Items)</h4>
@@ -595,6 +764,7 @@ const Cart = ({
             </button>
           </div>
         </div>
+        )}
       </div>
 
       {/* Floating Emojis Container */}

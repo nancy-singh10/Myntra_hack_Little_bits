@@ -59,4 +59,23 @@ class CartItem(models.Model):
     @property
     def subtotal(self):
         return self.quantity* self.product.price
-    
+        
+class Squad(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+    created_by = models.CharField(max_length=100, blank=True, null=True)
+    members = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class SharedCartItem(models.Model):
+    squad = models.ForeignKey(Squad, on_delete=models.CASCADE, related_name='items')
+    added_by = models.CharField(max_length=100, blank=True, null=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+class ItemComment(models.Model):
+    item = models.ForeignKey(SharedCartItem, on_delete=models.CASCADE, related_name='comments')
+    user = models.CharField(max_length=100, blank=True, null=True)
+    text = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)

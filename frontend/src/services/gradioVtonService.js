@@ -1,14 +1,27 @@
 import { client } from "@gradio/client";
 
 export const generateVirtualTryOn = async (humanImageBlob, garmentImageBlob, category = "Upper-body") => {
-  console.log("Hackathon Demo Mode: Using hardcoded virtual try-on response to ensure reliability.");
-  
-  // Simulate processing time (1.5 seconds) so the UI shows a loading state
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve("/model1_virtual-removebg-preview.png");
-    }, 1500);
-  });
+  try {
+    const formData = new FormData();
+    // Using keys matching the backend store/views.py (user_image and garment_image)
+    formData.append('user_image', humanImageBlob, 'user.jpg');
+    formData.append('garment_image', garmentImageBlob, 'garment.jpg');
+
+    const response = await fetch('http://localhost:8000/try-on/', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Try-on failed with status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return `http://localhost:8000${data.tryon_image_url}`;
+  } catch (error) {
+    console.error("Virtual Try-On error:", error);
+    throw error;
+  }
 };
 
 /**

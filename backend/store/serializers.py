@@ -26,3 +26,24 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model=Cart
         fields='__all__'
+
+from .models import Squad, SharedCartItem, ItemComment
+
+class SquadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Squad
+        fields = '__all__'
+
+class SharedCartItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    product_id = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(), source='product', write_only=True
+    )
+    class Meta:
+        model = SharedCartItem
+        fields = '__all__'
+
+class ItemCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ItemComment
+        fields = '__all__'
