@@ -19,12 +19,6 @@ const wardrobeItems = [
   { id: 10, name: "Denim Jacket", brand: "Wrangler", category: "Outerwear", status: "loved", usage: 28, image: "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?q=80&w=400&auto=format&fit=crop", price: 3299 },
 ];
 
-const localPoses = [
-  { id: 1, name: "Standing", image: "/pose1 (3).png" },
-  { id: 2, name: "Walking", image: "/pose2.png" },
-  { id: 3, name: "Side Profile", image: "/pose3.png" }
-];
-
 const initialChatMessages = [
   { type: 'system-intro' },
   { type: 'demand-signal' },
@@ -144,8 +138,11 @@ const Studio = ({ addToCart, wishlist }) => {
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setTempUploadedPhoto(URL.createObjectURL(file));
-      setShowPoseSelector(true);
+      const url = URL.createObjectURL(file);
+      setSelectedLocalPose(url);
+      localStorage.setItem("savedModelPhoto", url);
+      setVtonResultImage(null);
+      setShowPoseSelector(false);
     }
   };
 
@@ -160,57 +157,35 @@ const Studio = ({ addToCart, wishlist }) => {
       setWornItems(newWornItems);
     }
     
+    if (newWornItems.length === 0) {
+      setVtonResultImage(null);
+      return;
+    }
+
     setIsGeneratingVton(true);
     setVtonResultImage(null);
+
     try {
-      if (!selectedLocalPose) {
-        alert("Please select a model pose first!");
-        setIsGeneratingVton(false);
-        return;
-      }
-
-      // 🚀 LIVE DEMO HACK: Accumulative Combo Outfits
-      const hasTop = newWornItems.some(i => i.id === 1 || i.name === "Crochet Lace Top");
-      const hasJeans = newWornItems.some(i => i.id === 2 || i.name === "Baggy Jeans");
-      const hasGlasses = newWornItems.some(i => i.id === 3 || i.name === "Fastrack Shades");
-      const hasShoes = newWornItems.some(i => i.id === 4 || i.name === "Cult Chunky Sneaker");
-
-      let hackImage = null;
-      if (hasTop && hasJeans && hasGlasses && hasShoes) {
-        hackImage = '/top_jeans_glass_shoes.png';
-      } else if (hasTop && hasJeans && hasGlasses) {
-        hackImage = '/top_jeans_glass.png';
-      } else if (hasTop && hasJeans) {
-        hackImage = '/top_jeans_model.png';
-      } else if (hasJeans) {
-        hackImage = '/top_jeans_model.png';
-      } else if (hasTop) {
-        hackImage = '/top_wearing_model.png';
-      }
-
-      if (hackImage) {
-        setSelectedLocalPose(localPoses[0].image); // Lock base model to match hack images
-        setTimeout(() => {
-          setVtonResultImage(hackImage);
-          setIsGeneratingVton(false);
-        }, 1500); // Fake 1.5s processing delay
-        return;
-      } else if (newWornItems.length === 0) {
-        setIsGeneratingVton(false);
-        setVtonResultImage(null);
-        return;
-      }
-
-      const currentModelUrl = selectedLocalPose;
-      const modelRes = await fetch(currentModelUrl);
+      const basePose = selectedLocalPose || "/pose1 (3).png";
+      const modelRes = await fetch(basePose);
       const modelBlob = await modelRes.blob();
+
       const garmentRes = await fetch(garment.image);
       const garmentBlob = await garmentRes.blob();
-      const resultUrl = await generateVirtualTryOn(modelBlob, garmentBlob, garment.category === "Bottoms" || garment.category.toLowerCase().includes("kurta") ? "Lower-body" : "Upper-body");
-      setVtonResultImage(resultUrl);
+
+      const category = (garment.category === "Bottoms" || garment.category?.toLowerCase().includes("kurta") || garment.name?.toLowerCase().includes("jean")) ? "Lower-body" : "Upper-body";
+
+      const resultUrl = await generateVirtualTryOn(
+        modelBlob,
+        garmentBlob,
+        category
+      );
+
+      if (resultUrl) {
+        setVtonResultImage(resultUrl);
+      }
     } catch (error) {
-      console.error("VTON Error:", error);
-      alert("Failed to generate Virtual Try-On");
+      console.error("VTON Backend Model Error:", error);
     } finally {
       setIsGeneratingVton(false);
     }
@@ -500,32 +475,7 @@ const Studio = ({ addToCart, wishlist }) => {
 
 
             <div className="mirror-image-container" onClick={handleMirrorClick}>
-              {showPoseSelector ? (
-                <div className="studio-pose-selector" style={{display: 'flex', flexDirection: 'column', padding: '20px', alignItems: 'center', height: '100%', justifyContent: 'center'}}>
-                  <h3 style={{marginBottom: '5px'}}>Select Your AI Model</h3>
-                  <p style={{marginBottom: '20px', color: '#666', fontSize: '14px', textAlign: 'center'}}>We mapped your photo to these generated poses.</p>
-                  <div style={{display: 'flex', gap: '15px', overflowX: 'auto', width: '100%', paddingBottom: '10px', justifyContent: 'center'}}>
-                    {localPoses.map(pose => (
-                      <div key={pose.id} style={{cursor: 'pointer', borderRadius: '8px', overflow: 'hidden', border: '2px solid transparent', transition: '0.2s', minWidth: '100px'}} 
-                           onMouseEnter={(e) => e.currentTarget.style.borderColor = '#111'}
-                           onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
-                           onClick={(e) => {
-                             e.stopPropagation();
-                             setSelectedLocalPose(pose.image);
-                             localStorage.setItem("savedModelPhoto", pose.image);
-                             setShowPoseSelector(false);
-                             setTempUploadedPhoto(null);
-                             setVtonResultImage(null);
-                             setRotation(0);
-                             setIs3DMode(false);
-                           }}>
-                        <img src={pose.image} alt={pose.name} style={{width: '120px', height: '180px', objectFit: 'contain', display: 'block'}} />
-                        <div style={{fontSize: '12px', textAlign: 'center', padding: '8px', background: '#f5f5f5', color: '#333', fontWeight: 'bold'}}>{pose.name}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (vtonResultImage || selectedLocalPose) ? (
+              {(vtonResultImage || selectedLocalPose) ? (
                 is3DMode ? (
                   <model-viewer
                     src={model3DUrl}
@@ -540,7 +490,7 @@ const Studio = ({ addToCart, wishlist }) => {
                     alt="Virtual Try-On Model" 
                     className={`mirror-model-image ${isGeneratingVton ? 'loading-blur' : ''}`}
                     style={{ 
-                      transform: `rotateY(${rotation}deg) ${(vtonResultImage && vtonResultImage.startsWith('/top_')) ? 'scale(1.14) translateY(4%)' : ''}`, 
+                      transform: `rotateY(${rotation}deg)`, 
                       transition: 'transform 0.1s linear', 
                       transformStyle: 'preserve-3d' 
                     }}
@@ -552,9 +502,17 @@ const Studio = ({ addToCart, wishlist }) => {
                   />
                 )
               ) : (
-                <div className="mirror-empty-state" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#888', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '24px', marginBottom: '10px' }}>📸</span>
-                  <p>Upload a model photo to start</p>
+                <div 
+                  className="mirror-empty-state" 
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#282c3f', flexDirection: 'column', padding: '20px', cursor: 'pointer' }}
+                  onClick={() => fileInputRef.current.click()}
+                >
+                  <span style={{ fontSize: '48px', marginBottom: '12px' }}>📸</span>
+                  <h3 style={{ margin: '0 0 6px 0', fontSize: '18px', fontWeight: '800' }}>Upload Your Model Photo</h3>
+                  <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#696e79' }}>Upload your photo to try on clothes using DCI-VTON AI</p>
+                  <button className="premium-btn-secondary" style={{ background: '#ff3f6c', color: '#ffffff', border: 'none', padding: '10px 20px', borderRadius: '20px', fontWeight: '700', cursor: 'pointer' }}>
+                    Select Photo 📁
+                  </button>
                 </div>
               )}
               
