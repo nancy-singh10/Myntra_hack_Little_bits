@@ -4,12 +4,13 @@ import { allProducts } from '../data/mockProducts';
 
 import './ProductDetails.css';
 
-const ProductDetails = ({ addToCart, wishlist, toggleWishlist }) => {
+const ProductDetails = ({ addToCart, wishlist, toggleWishlist, squads, setActiveSquadId }) => {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [selectedSize, setSelectedSize] = useState('M');
   const [selectedColor, setSelectedColor] = useState('Blue');
+  const [showSquadModal, setShowSquadModal] = useState(false);
 
 
   // Find the product from our database or fallback to the first one
@@ -120,8 +121,12 @@ const ProductDetails = ({ addToCart, wishlist, toggleWishlist }) => {
               <span className="icon">🛍️</span> ADD TO BAG
             </button>
             <button className="add-to-bag-btn split-bag-add-btn" onClick={() => {
-              addToCart(product, selectedSize, selectedColor, true);
-              handleAddToCart();
+              if (squads && squads.length > 0) {
+                setShowSquadModal(true);
+              } else {
+                addToCart(product, selectedSize, selectedColor, true);
+                handleAddToCart();
+              }
             }}>
               <span className="icon">🤝</span> ADD TO SPLIT BAG
             </button>
@@ -140,6 +145,40 @@ const ProductDetails = ({ addToCart, wishlist, toggleWishlist }) => {
           </div>
         </div>
       </div>
+
+      {showSquadModal && (
+        <div className="squad-select-modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div className="squad-select-modal-content" style={{ background: 'white', padding: '20px', borderRadius: '8px', width: '90%', maxWidth: '400px' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '15px' }}>Select Squad to add to</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '300px', overflowY: 'auto' }}>
+              {squads.map(squad => (
+                <button 
+                  key={squad.id}
+                  style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '12px', border: '1px solid #eee', borderRadius: '8px', background: 'transparent', cursor: 'pointer', textAlign: 'left' }}
+                  onClick={() => {
+                    setActiveSquadId(squad.id);
+                    addToCart(product, selectedSize, selectedColor, true);
+                    setShowSquadModal(false);
+                    alert(`Added to ${squad.name}!`);
+                  }}
+                >
+                  <span style={{ fontSize: '24px' }}>{squad.icon}</span>
+                  <div>
+                    <div style={{ fontWeight: 'bold', color: '#282c3f', fontSize: '16px' }}>{squad.name}</div>
+                    <div style={{ color: '#535665', fontSize: '12px' }}>{squad.members.length} members</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <button 
+              style={{ marginTop: '15px', width: '100%', padding: '10px', background: '#ff3f6c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+              onClick={() => setShowSquadModal(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );

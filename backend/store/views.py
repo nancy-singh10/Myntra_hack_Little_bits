@@ -9,7 +9,7 @@ from django.conf import settings
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import Product, Category, Cart, CartItem, Squad, SharedCartItem, ItemComment
+from .models import Product, Category, Cart, CartItem, Squad, SharedCartItem, ItemComment, UserSessionCart
 from .serializers import ProductSerializer, CategorySerializer, CartSerializer, CartItemSerializer, SquadSerializer, SharedCartItemSerializer, ItemCommentSerializer
 from PIL import Image, ImageFilter
 
@@ -29,6 +29,19 @@ def get_categories(request):
     return Response(serializer.data)        
 
 # cart
+@api_view(['GET', 'POST'])
+def sync_cart(request):
+    user_id = request.GET.get('user_id', 'default_user')
+    cart, created = UserSessionCart.objects.get_or_create(user_id=user_id)
+    
+    if request.method == 'GET':
+        return Response({'cart_data': cart.cart_data})
+    
+    elif request.method == 'POST':
+        cart.cart_data = request.data.get('cart_data', [])
+        cart.save()
+        return Response({'status': 'success', 'cart_data': cart.cart_data})
+
 @api_view(['GET'])
 def get_cart(request):
     cart,created=Cart.objects.get_or_create(user=None)

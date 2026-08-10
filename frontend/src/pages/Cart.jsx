@@ -23,6 +23,8 @@ const Cart = ({
   const [isGameActive, setIsGameActive] = React.useState(false);
   const [showCreateModal, setShowCreateModal] = React.useState(false);
   const [showSelector, setShowSelector] = React.useState(true);
+  const [showSquadModal, setShowSquadModal] = useState(false);
+  const [itemToMove, setItemToMove] = useState(null);
 
   const currentSquad = squads.find(s => s.id === activeSquadId) || null;
   const [socket, setSocket] = useState(null);
@@ -401,6 +403,15 @@ const Cart = ({
   };
 
   const handleMoveToSplitBag = (id) => {
+    if (squads && squads.length > 0) {
+      setItemToMove(id);
+      setShowSquadModal(true);
+    } else {
+      executeMoveToSplitBag(id);
+    }
+  };
+
+  const executeMoveToSplitBag = (id) => {
     setCartItems(items => {
       const itemToCopy = items.find(item => item.id === id);
       if (!itemToCopy) return items;
@@ -554,7 +565,7 @@ const Cart = ({
             {displayItems.map(item => (
               <div key={item.id} className="cart-item" style={{ flexDirection: 'column' }}>
                 <div className="cart-item-top" style={{ display: 'flex', width: '100%' }}>
-                  <img src={item.imageUrl} alt={item.title} className="cart-item-image" />
+                  <img src={item.imageUrl} alt={item.title} className="cart-item-image" style={{ objectFit: 'contain', objectPosition: 'center', background: '#f5f5f5' }} />
                   <div className="cart-item-details">
                     {isSplitBagActive && (
                       <div className={`user-tag ${item.addedBy === currentUser || item.addedBy?.startsWith('Liked by You') ? 'tag-you' : 'tag-friend'}`}>
@@ -781,6 +792,41 @@ const Cart = ({
           {emoji.char}
         </div>
       ))}
+
+      {showSquadModal && (
+        <div className="squad-select-modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div className="squad-select-modal-content" style={{ background: 'white', padding: '20px', borderRadius: '8px', width: '90%', maxWidth: '400px' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '15px' }}>Select Squad to add to</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '300px', overflowY: 'auto' }}>
+              {squads.map(squad => (
+                <button 
+                  key={squad.id}
+                  style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '12px', border: '1px solid #eee', borderRadius: '8px', background: 'transparent', cursor: 'pointer', textAlign: 'left' }}
+                  onClick={() => {
+                    setActiveSquadId(squad.id);
+                    executeMoveToSplitBag(itemToMove);
+                    setShowSquadModal(false);
+                    setItemToMove(null);
+                    setIsSplitBagActive(true);
+                  }}
+                >
+                  <span style={{ fontSize: '24px' }}>{squad.icon}</span>
+                  <div>
+                    <div style={{ fontWeight: 'bold', color: '#282c3f', fontSize: '16px' }}>{squad.name}</div>
+                    <div style={{ color: '#535665', fontSize: '12px' }}>{squad.members?.length || 0} members</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <button 
+              style={{ marginTop: '15px', width: '100%', padding: '10px', background: '#ff3f6c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+              onClick={() => { setShowSquadModal(false); setItemToMove(null); }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );

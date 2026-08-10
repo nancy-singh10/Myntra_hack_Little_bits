@@ -21,6 +21,33 @@ import './App.css';
 function App() {
   const [wishlist, setWishlist] = useState({});
   const [cartItems, setCartItems] = useState([]);
+  const [isCartLoaded, setIsCartLoaded] = useState(false);
+  
+  React.useEffect(() => {
+    fetch('http://localhost:8000/cart/sync/?user_id=mock_user_1')
+      .then(res => res.json())
+      .then(data => {
+        if (data.cart_data) {
+          setCartItems(data.cart_data);
+        }
+        setIsCartLoaded(true);
+      })
+      .catch(err => {
+        console.error("Could not fetch cart", err);
+        setIsCartLoaded(true);
+      });
+  }, []);
+
+  React.useEffect(() => {
+    if (!isCartLoaded) return;
+    fetch('http://localhost:8000/cart/sync/?user_id=mock_user_1', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ cart_data: cartItems })
+    }).catch(err => console.error("Could not sync cart", err));
+  }, [cartItems, isCartLoaded]);
   
   const [squads, setSquads] = useState([
     {
@@ -115,7 +142,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home squadInfo={activeSquad} addToCart={addToCart} />} />
         <Route path="/women" element={<Women />} />
-        <Route path="/product/:id" element={<ProductDetails addToCart={addToCart} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
+        <Route path="/product/:id" element={<ProductDetails addToCart={addToCart} wishlist={wishlist} toggleWishlist={toggleWishlist} squads={squads} setActiveSquadId={setActiveSquadId} />} />
         <Route path="/cart" element={
           <Cart
             cartItems={cartItems}
@@ -132,7 +159,7 @@ function App() {
         <Route path="/wishlist" element={<Wishlist wishlist={wishlist} toggleWishlist={toggleWishlist} addToCart={addToCart} />} />
         
         {/* Myntra Studio / Vitra Dashboard */}
-        <Route path="/studio" element={<Studio addToCart={addToCart} wishlist={wishlist} />} />
+        <Route path="/studio" element={<Studio addToCart={addToCart} wishlist={wishlist} squads={squads} setActiveSquadId={setActiveSquadId} />} />
 
         <Route path="*" element={<Home squadInfo={activeSquad} addToCart={addToCart} />} />
       </Routes>

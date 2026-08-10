@@ -79,3 +79,8 @@ class ItemComment(models.Model):
     user = models.CharField(max_length=100, blank=True, null=True)
     text = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
+
+class UserSessionCart(models.Model):
+    user_id = models.CharField(max_length=100, default='default_user', unique=True)
+    cart_data = models.JSONField(default=list, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)

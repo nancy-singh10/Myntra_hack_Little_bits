@@ -26,7 +26,7 @@ const initialChatMessages = [
   { type: 'alert' }
 ];
 
-const Studio = ({ addToCart, wishlist }) => {
+const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
   const wishlistItems = (wishlist && Object.keys(wishlist).some(k => wishlist[k])) 
     ? allProducts.filter(p => wishlist[p.id]).map(item => ({
         id: `w_${item.id}`,
@@ -52,6 +52,8 @@ const Studio = ({ addToCart, wishlist }) => {
   const [isGeneratingVton, setIsGeneratingVton] = useState(false);
   const [vtonResultImage, setVtonResultImage] = useState(null);
   const [showShareOptions, setShowShareOptions] = useState(false);
+  const [showSquadModal, setShowSquadModal] = useState(false);
+  const [getupToShare, setGetupToShare] = useState(null);
   const fileInputRef = useRef(null);
 
   const [showPoseSelector, setShowPoseSelector] = useState(false);
@@ -564,26 +566,46 @@ const Studio = ({ addToCart, wishlist }) => {
                 }}>
                   <h4 style={{ margin: '0 0 10px 0', color: '#333' }}>Look Saved! 🎉</h4>
                   <button className="premium-btn-primary full-width" onClick={() => {
+                    const getupItem = {
+                      id: 'vton_getup_' + Date.now(),
+                      brand: 'Myntra Studio',
+                      title: 'Restyled Outfit Look',
+                      imageUrl: vtonResultImage || selectedLocalPose,
+                      price: 1999,
+                      originalPrice: 2499,
+                      discount: '(20% OFF)',
+                      addedBy: 'You'
+                    };
+                    if (squads && squads.length > 0) {
+                      setGetupToShare(getupItem);
+                      setShowSquadModal(true);
+                      setShowShareOptions(false);
+                    } else {
+                      if (addToCart) addToCart(getupItem, 'M', 'Mixed', true);
+                      alert('Shared getup to split bag!');
+                      setShowShareOptions(false);
+                    }
+                  }}>
+                    Share Getup to Squad
+                  </button>
+                  <button className="premium-btn-secondary full-width" onClick={() => { 
                     if (addToCart) {
                       const getupItem = {
                         id: 'vton_getup_' + Date.now(),
                         brand: 'Myntra Studio',
                         title: 'Restyled Outfit Look',
-                        imageUrl: vtonResultImage || selectedLocalPose || mirrorPoses[activePoseIndex],
+                        imageUrl: vtonResultImage || selectedLocalPose,
                         price: 1999,
                         originalPrice: 2499,
                         discount: '(20% OFF)',
                         addedBy: 'You'
                       };
-                      addToCart(getupItem, 'M', 'Mixed', true);
+                      addToCart(getupItem, 'M', 'Mixed', false);
                     }
-                    alert('Shared model getup in cart!'); 
+                    alert('Added Getup to My Bag!'); 
                     setShowShareOptions(false); 
                   }}>
-                    Share Getup in Cart
-                  </button>
-                  <button className="premium-btn-secondary full-width" onClick={() => { alert('Cart shared successfully!'); setShowShareOptions(false); }}>
-                    Share Cart
+                    Add Getup to My Bag
                   </button>
                   <button style={{background:'transparent', border:'none', cursor:'pointer', marginTop:'5px', color:'#888'}} onClick={(e) => {e.stopPropagation(); setShowShareOptions(false);}}>
                     Close
@@ -778,6 +800,44 @@ const Studio = ({ addToCart, wishlist }) => {
           </form>
         </div>
       </div>
+
+      {showSquadModal && (
+        <div className="squad-select-modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div className="squad-select-modal-content" style={{ background: 'white', padding: '20px', borderRadius: '8px', width: '90%', maxWidth: '400px' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#333' }}>Select Squad to share getup with</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '300px', overflowY: 'auto' }}>
+              {(squads || []).map(squad => (
+                <button 
+                  key={squad.id}
+                  style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '12px', border: '1px solid #eee', borderRadius: '8px', background: 'transparent', cursor: 'pointer', textAlign: 'left' }}
+                  onClick={() => {
+                    if (setActiveSquadId) setActiveSquadId(squad.id);
+                    if (addToCart && getupToShare) {
+                      addToCart(getupToShare, 'M', 'Mixed', true);
+                    }
+                    setShowSquadModal(false);
+                    setGetupToShare(null);
+                    alert(`Getup shared to ${squad.name}!`);
+                  }}
+                >
+                  <span style={{ fontSize: '24px' }}>{squad.icon}</span>
+                  <div>
+                    <div style={{ fontWeight: 'bold', color: '#282c3f', fontSize: '16px' }}>{squad.name}</div>
+                    <div style={{ color: '#535665', fontSize: '12px' }}>{squad.members?.length || 0} members</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <button 
+              style={{ marginTop: '15px', width: '100%', padding: '10px', background: '#ff3f6c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+              onClick={() => { setShowSquadModal(false); setGetupToShare(null); }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
