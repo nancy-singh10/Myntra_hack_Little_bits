@@ -84,3 +84,33 @@ class UserSessionCart(models.Model):
     user_id = models.CharField(max_length=100, default='default_user', unique=True)
     cart_data = models.JSONField(default=list, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+class UserLocation(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='location', null=True, blank=True)
+    pincode = models.CharField(max_length=20)
+    city = models.CharField(max_length=100)
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.city} ({self.pincode})"
+
+class UserCalendarIntegration(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='calendar_auth', null=True, blank=True)
+    access_token = models.CharField(max_length=255)
+    refresh_token = models.CharField(max_length=255, null=True, blank=True)
+    token_expiry = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Calendar Auth for {self.user}"
+
+class WardrobeItem(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wardrobe', null=True, blank=True)
+    product_category = models.CharField(max_length=100)
+    attributes = models.JSONField(default=dict, blank=True)
+    purchase_date = models.DateField(auto_now_add=True)
+    image_url = models.URLField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.product_category} for {self.user}"

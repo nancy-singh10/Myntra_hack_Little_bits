@@ -7,7 +7,8 @@ import { allProducts } from '../data/mockProducts';
 // Mock Data (fallback)
 const wardrobeItems = [
   { id: 1, name: "Crochet Lace Top", brand: "Urbanic", category: "Tops", status: "loved", usage: 34, image: "/custom-top.png", price: 560 },
-  { id: 11, name: "Orange Tie-Front Top", brand: "Boutique", category: "Tops", status: "loved", usage: 10, image: "/orange_tie_top.png", price: 899 },
+  { id: 12, name: "Black Floral Top", brand: "Boutique", category: "Tops", status: "loved", usage: 10, image: "/meetingcptop.png", price: 899 },
+  { id: 11, name: "Blue Festive Lehenga", brand: "Biba", category: "Sets", status: "loved", usage: 3, image: "/lehenga_.png", price: 12500 },
   { id: 2, name: "Baggy Jeans", brand: "Tokyo Talkies", category: "Bottoms", status: "rotation", usage: 12, image: "/custom-jeans.png", price: 1500 },
   { id: 3, name: "Fastrack Shades", brand: "Fastrack", category: "Accessories", status: "rotation", usage: 42, image: "/custom-sunglasses.png", price: 750 },
   { id: 4, name: "Cult Chunky Sneaker", brand: "Cult", category: "Shoes", status: "loved", usage: 18, image: "/custom-shoe.png", price: 4000 },
@@ -21,24 +22,40 @@ const wardrobeItems = [
 ];
 
 const initialChatMessages = [
-  { type: 'system-intro' },
-  { type: 'demand-signal' },
-  { type: 'proposal' },
-  { type: 'alert' }
+  { type: 'greeting', text: "Hi Nancy — good morning. Here's your day and what I'd wear for it." },
+  { type: 'context-pill', location: "Location: Delhi", temp: "38°C", weather: "Dry Heat" },
+  {
+    type: 'schedule', events: [
+      { date: "Aug 24", time: "14:00", title: "Client Meeting, CP", desc: "Sharp, quiet" },
+      { date: "Aug 25", time: "19:30", title: "Dinner, Hauz Khas", desc: "Softer, evening" }
+    ]
+  },
+  { type: 'section-title', text: "Three looks, all from pieces you own:" },
+  { type: 'proposal', title: "Meeting - CP", badge: "Best for 14:00", desc: "Breathable cotton, structured shoulder for the 14:00 room.", items: ["/meetingcptop.png"], style_agent: "The sheer sleeves and floral pattern commands attention in the boardroom while the lightweight material keeps you cool during the 2 PM heat.", finance_agent: "Investing in this statement piece lowers your cost-per-wear since it easily transitions from formal meetings to casual Fridays." },
+  { type: 'proposal', title: "Desk to Dinner", badge: "Layer down", badgeColor: "#f3e8ff", desc: "Swap the blazer for a relaxed tee at 18:00 — same base.", items: ["/custom-top.png", "/custom-jeans.png", "/custom-shoe.png"], style_agent: "By removing the formal blazer, you instantly shift the vibe from professional to evening casual without changing your core outfit.", finance_agent: "Versatile base layers like these jeans save you money—buy once, style twice!" },
+  { type: 'proposal', title: "Evening, Hauz Khas", badge: "Restyle dormant", badgeColor: "#f3e8ff", desc: "Wakes up the denim jacket that has rested 8 months.", items: ["/custom-top.png", "/custom-jeans.png", "/custom-shoe.png"], style_agent: "A classic denim pairing brings back that effortless Hauz Khas party vibe, perfectly reviving your dormant jacket.", finance_agent: "Restyling an old jacket from your wardrobe saves you from buying a new one. Smart closet economics!" },
+  { type: 'section-title', text: "One cultural event is coming up on your calendar:" },
+  {
+    type: 'cultural-event', title: "Raksha Bandhan Celebration", time: "From your calendar • Aug 28", desc: "Festive, warm tones, indoor-to-terrace. Guests dress traditional-modern.", looks: [
+      { title: "Festive Suit", badge: "Traditional-modern", desc: "Embroidered Suit with the tote — jewel-tone shawl adds the festive read.", items: ["/custom-yellow-suit.png", "/suitpant.png", "/custom-shoe.png"] },
+      { title: "Tailored Celebration", badge: "Smart", desc: "Blazer over linen keeps it respectful for elders present.", items: ["/kurti-1.png", "/suitpant.png", "/custom-shoe.png"] },
+      { title: "Terrace Evening", badge: "Relaxed", desc: "Light layers for the 9pm temperature drop on the terrace.", items: ["/kurti-1.png", "/custom-shoe.png"] }
+    ]
+  }
 ];
 
 const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
-  const wishlistItems = (wishlist && Object.keys(wishlist).some(k => wishlist[k])) 
+  const wishlistItems = (wishlist && Object.keys(wishlist).some(k => wishlist[k]))
     ? allProducts.filter(p => wishlist[p.id]).map(item => ({
-        id: `w_${item.id}`,
-        name: item.title,
-        brand: item.brand,
-        category: item.category,
-        status: "loved",
-        usage: Math.floor(Math.random() * 20) + 1,
-        image: item.imageUrl,
-        price: item.price
-      }))
+      id: `w_${item.id}`,
+      name: item.title,
+      brand: item.brand,
+      category: item.category,
+      status: "loved",
+      usage: Math.floor(Math.random() * 20) + 1,
+      image: item.imageUrl,
+      price: item.price
+    }))
     : [];
 
   const displayItems = [...wardrobeItems, ...wishlistItems];
@@ -48,7 +65,7 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [activePoseIndex, setActivePoseIndex] = useState(0);
   const [wornItems, setWornItems] = useState([]);
-  
+
   const [selectedLocalPose, setSelectedLocalPose] = useState(null);
   const [isGeneratingVton, setIsGeneratingVton] = useState(false);
   const [vtonResultImage, setVtonResultImage] = useState(null);
@@ -59,11 +76,11 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
 
   const [showPoseSelector, setShowPoseSelector] = useState(false);
   const [tempUploadedPhoto, setTempUploadedPhoto] = useState(null);
-  
+
   const [is3DMode, setIs3DMode] = useState(false);
   const [model3DUrl, setModel3DUrl] = useState(null);
   const [isGenerating3D, setIsGenerating3D] = useState(false);
-  
+
   // Load saved pose from localStorage on mount
   useEffect(() => {
     const savedPose = localStorage.getItem("savedModelPhoto");
@@ -93,17 +110,91 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
   const [chatMessages, setChatMessages] = useState(initialChatMessages);
   const [inputText, setInputText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [expandedAgents, setExpandedAgents] = useState({});
+
+  const fetchFeed = (loc) => {
+    fetch(`http://127.0.0.1:8000/stylist/feed/?location=${encodeURIComponent(loc)}`)
+      .then(res => res.json())
+      .then(data => {
+        setCurrentLocation(data.location || loc);
+        if (data.weather) {
+          setCurrentWeather(`${data.weather.temp}, ${data.weather.description}`);
+        }
+
+        const newMessages = [];
+        if (data.greeting) newMessages.push({ type: 'greeting', text: data.greeting });
+
+        newMessages.push({
+          type: 'context-pill',
+          location: (data.location || loc).split(',')[0],
+          temp: data.weather?.temp || "28°C",
+          weather: data.weather?.description || "Humid"
+        });
+
+        if (data.events && data.events.length > 0) {
+          newMessages.push({
+            type: 'schedule',
+            events: data.events.map(e => ({
+              time: e.time || "12:00",
+              title: e.title || "Event",
+              desc: e.subtitle || e.desc || ""
+            }))
+          });
+        }
+
+        if (data.outfits_heading) newMessages.push({ type: 'section-title', text: data.outfits_heading });
+
+        if (data.outfits && data.outfits.length > 0) {
+          data.outfits.forEach((outfit, index) => {
+            // Provide dynamic local fallback images based on the chosen city if the AI sends dummy placeholders
+            const isLucknow = loc.toLowerCase().includes('lucknow');
+            const localFallbacks = isLucknow ? [
+              ["/kurti-1.png", "/suitpant.png", "/custom-shoe.png"],
+              ["/custom-yellow-suit.png", "/custom-shoe.png", "/custom-shoe.png"]
+            ] : [
+              ["/orange_tie_top.png", "/custom-jeans.png", "/custom-shoe.png"],
+              ["/custom-top.png", "/custom-jeans.png", "/custom-shoe.png"]
+            ];
+            const safeItems = (outfit.items && outfit.items.length > 0)
+              ? outfit.items.map((i, imgIdx) => {
+                if (i.image_url && !i.image_url.includes('placeholder')) return i.image_url;
+                return localFallbacks[index % 2][imgIdx % 3];
+              })
+              : localFallbacks[index % 2];
+
+            newMessages.push({
+              type: 'proposal',
+              title: outfit.title,
+              badge: outfit.tag,
+              desc: outfit.description,
+              items: safeItems
+            });
+          });
+        }
+
+        setChatMessages(newMessages);
+      })
+      .catch(err => console.error(err));
+  };
+
+  useEffect(() => {
+    // We leave this commented out so the rich static mock data (Delhi) 
+    // stays visible on load. It will only fetch dynamically when the user 
+    // changes the context in the modal.
+    // fetchFeed("Connaught Place, Delhi (110001)");
+  }, []);
+
   // Context states
-  const [currentLocation, setCurrentLocation] = useState("Indiranagar, Bengaluru (560038)");
-  const [currentWeather, setCurrentWeather] = useState("🌤️ 28°C, Humid");
+  const [currentLocation, setCurrentLocation] = useState("Connaught Place, Delhi (110001)");
+  const [currentWeather, setCurrentWeather] = useState("🔥 38°C, Dry Heat");
   const [isCalendarSynced, setIsCalendarSynced] = useState(true);
-  
+
   // Modal states
   const [isContextModalOpen, setIsContextModalOpen] = useState(false);
-  const [tempLocation, setTempLocation] = useState("Indiranagar, Bengaluru (560038)");
-  const [tempWeather, setTempWeather] = useState("🌤️ 28°C, Humid");
+  const [tempLocation, setTempLocation] = useState("Connaught Place, Delhi (110001)");
+  const [tempWeather, setTempWeather] = useState("🔥 38°C, Dry Heat");
   const [tempCalendarSync, setTempCalendarSync] = useState(true);
-  
+
   const [calendarEvents, setCalendarEvents] = useState([
     { type: "personal", date: "Saturday", title: "Friend's Haldi Ceremony" },
     { type: "cultural", date: "Sunday", title: "Varamahalakshmi Festival" }
@@ -122,7 +213,7 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
     scrollToBottom();
   }, [chatMessages, isTyping]);
 
-  const handleMirrorClick = () => {};
+  const handleMirrorClick = () => { };
 
   const handleGenerate3D = async () => {
     if (!vtonResultImage && !selectedLocalPose) return;
@@ -159,7 +250,7 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
       newWornItems = [...wornItems, garment];
       setWornItems(newWornItems);
     }
-    
+
     if (newWornItems.length === 0) {
       setVtonResultImage(null);
       return;
@@ -229,9 +320,9 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
           contents: [{ parts: [{ text: `${prompt}\nUser says: ${userMessage}` }] }]
         })
       });
-      
+
       const data = await res.json();
-      
+
       if (!res.ok) {
         console.error("API Error:", data);
         if (data.error && data.error.message.includes("API key not valid")) {
@@ -257,28 +348,103 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
     setInputText("");
     setIsTyping(true);
 
-    if (currentInput.toLowerCase().includes("mumbai") || currentInput.toLowerCase().includes("travelling")) {
-      setTimeout(() => {
-        const newLocation = "Colaba, Mumbai (400001)";
-        const newEvents = [
-          { type: "personal", date: "Friday", title: "Beachfront Dinner" },
-          { type: "cultural", date: "Weekend", title: "Ganesh Chaturthi Prep" }
-        ];
-        setCurrentLocation(newLocation);
-        setCalendarEvents(newEvents);
-        
-        setChatMessages(prev => [
-          ...prev, 
-          { type: 'agent', sender: 'Stylist', text: 'I see you are heading to Mumbai! The coastal humidity is quite high right now.' },
-          { 
-            type: 'demand-signal', 
-            location: newLocation,
-            trend: 'Linen Blends & Breezy Silhouettes',
-            events: newEvents
-          }
-        ]);
-        setIsTyping(false);
-      }, 1500);
+    const lowerInput = currentInput.toLowerCase();
+
+    // Dynamic Location Detection
+    const locationMatch = currentInput.match(/(?:travelling to|going to|heading to|in) ([a-zA-Z\s]+)/i);
+
+    if (locationMatch || lowerInput.includes("mumbai") || lowerInput.includes("delhi") || lowerInput.includes("bangalore")) {
+      const detectedLocation = locationMatch ? locationMatch[1].trim() : currentInput;
+
+      // Fetch from our new dynamic backend endpoint
+      fetch(`http://127.0.0.1:8000/stylist/feed/?location=${encodeURIComponent(detectedLocation)}`)
+        .then(res => res.json())
+        .then(data => {
+          setCurrentLocation(data.location);
+          setCalendarEvents(data.events);
+
+          setChatMessages(prev => {
+            const newMessages = [
+              ...prev,
+              { type: 'agent', sender: 'Stylist', text: data.greeting },
+              {
+                type: 'demand-signal',
+                location: data.location,
+                trend: data.trends.trending_items.join(' & '),
+                events: data.events
+              }
+            ];
+
+            const processItems = (items) => {
+              if (items && Array.isArray(items) && items.length > 0) {
+                return items.map(item => {
+                  if (typeof item === 'object') {
+                    let itemName = (item.name || "").toLowerCase();
+                    if (itemName.includes('white') || itemName.includes('tee') || itemName.includes('shirt')) {
+                      return "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=400&auto=format&fit=crop";
+                    } else if (itemName.includes('jeans') || itemName.includes('trouser') || itemName.includes('pant') || itemName.includes('bottom')) {
+                      return "/custom-jeans.png";
+                    } else if (itemName.includes('shoe') || itemName.includes('loafer') || itemName.includes('sneaker')) {
+                      return "/custom-shoe.png";
+                    } else if (itemName.includes('blazer') || itemName.includes('jacket') || itemName.includes('coat')) {
+                      return "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?q=80&w=400&auto=format&fit=crop";
+                    } else if (itemName.includes('top')) {
+                      return "/meetingcptop.png";
+                    }
+                    return item.image_url && !item.image_url.includes('placeholder') ? item.image_url : "/meetingcptop.png";
+                  }
+                  return item;
+                });
+              }
+
+              const query = currentInput.toLowerCase();
+              if (query.includes('lehenga')) {
+                return ["/lehenga_.png"];
+              }
+              const isLucknow = currentLocation.toLowerCase().includes('lucknow');
+              if (isLucknow) return ["/kurti-1.png", "/suitpant.png", "/custom-shoe.png"];
+              return ["/meetingcptop.png", "/custom-jeans.png", "/custom-shoe.png"];
+            };
+
+            if (data.outfits && data.outfits.length > 0) {
+              data.outfits.forEach(outfit => {
+                const isBeti = currentInput.toLowerCase().includes('beti') || currentInput.toLowerCase().includes('lehenga');
+                newMessages.push({
+                  type: 'proposal',
+                  title: outfit.title,
+                  desc: isBeti ? "Yeh aapki beti pe bahut accha lagega!" : (outfit.desc || outfit.style_agent || "Perfect outfit curated for you."),
+                  items: processItems(outfit.items),
+                  style_agent: isBeti ? "Yeh lehenga aapki beti pe bahut accha lagega! Iska design festival aur family gathering ke liye perfect hai." : (outfit.style_agent || outfit.desc || "Style carefully curated based on local climate and cultural trends."),
+                  finance_agent: outfit.finance_agent || "Smart economical choice maximizing cost-per-wear."
+                });
+              });
+            } else if (data.outfit && data.outfit.items && data.outfit.items.length > 0) {
+              const isBeti = currentInput.toLowerCase().includes('beti') || currentInput.toLowerCase().includes('lehenga');
+              newMessages.push({
+                type: 'proposal',
+                title: data.outfit.title,
+                desc: isBeti ? "Yeh aapki beti pe bahut accha lagega!" : (data.outfit.desc || data.outfit.style_agent || "Perfect outfit curated for you."),
+                items: processItems(data.outfit.items),
+                style_agent: isBeti ? "Yeh lehenga aapki beti pe bahut accha lagega! Iska design festival aur family gathering ke liye perfect hai." : (data.outfit.style_agent || data.outfit.desc || "Style carefully curated based on local climate and cultural trends."),
+                finance_agent: data.outfit.finance_agent || "Smart economical choice maximizing cost-per-wear."
+              });
+            }
+
+            if (data.finance_warnings && data.finance_warnings.length > 0) {
+              newMessages.push({
+                type: 'alert',
+                warnings: data.finance_warnings
+              });
+            }
+
+            return newMessages;
+          });
+          setIsTyping(false);
+        })
+        .catch(err => {
+          console.error("Backend fetch error", err);
+          setIsTyping(false);
+        });
       return;
     }
 
@@ -287,7 +453,7 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
         const newEvent = { type: "personal", date: "Next Week", title: "Office Offsite Party" };
         setCalendarEvents(prev => [...prev, newEvent]);
         setChatMessages(prev => [
-          ...prev, 
+          ...prev,
           { type: 'agent', sender: 'Stylist', text: `Got it, I've added "Office Offsite Party" to your calendar context. I'll keep an eye out for smart-casual outfits that fit the local vibe.` }
         ]);
         setIsTyping(false);
@@ -295,43 +461,58 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
       return;
     }
 
-    if (currentInput.toLowerCase().includes("presentation") || currentInput.toLowerCase().includes("office")) {
-      setTimeout(() => {
-        setChatMessages(prev => [
-          ...prev, 
-          { type: 'agent', sender: 'Stylist', text: 'Good luck with the presentation! A tailored power suit is perfect for projecting confidence. I found this one in your wardrobe.' },
-          { type: 'presentation-proposal' }
-        ]);
+    // Dynamic Recommendation Engine
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/stylist/recommend/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: currentInput, location: currentLocation })
+      });
+      const data = await res.json();
+
+      setChatMessages(prev => {
+        let newMessages = [...prev];
+        const outfits = Array.isArray(data) ? data : (data.outfits ? data.outfits : [data]);
         
-        setTimeout(() => {
-          setChatMessages(prev => [
-            ...prev,
-            { type: 'agent', sender: 'Trend', text: 'Power suits are trending heavily right now in corporate fashion, great choice for a sharp impression.' },
-            { type: 'agent', sender: 'Finance', text: 'You bought this suit 2 years ago and only wore it twice—great job rescuing it and lowering your cost per wear!' }
-          ]);
-          setIsTyping(false);
-        }, 1200);
-      }, 1000);
-      return;
+        const processItemsFallback = (items) => {
+          const query = currentInput.toLowerCase();
+          if (query.includes('lehenga') || query.includes('beti')) {
+            return ["/lehenga_.png"];
+          }
+          if (items && Array.isArray(items) && items.length > 0) {
+            return items.map(item => {
+              if (typeof item === 'object') {
+                let itemName = (item.name || "").toLowerCase();
+                if (itemName.includes('white') || itemName.includes('tee') || itemName.includes('shirt')) return "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=400&auto=format&fit=crop";
+                if (itemName.includes('jeans') || itemName.includes('trouser') || itemName.includes('pant') || itemName.includes('bottom')) return "/custom-jeans.png";
+                if (itemName.includes('shoe') || itemName.includes('loafer') || itemName.includes('sneaker')) return "/custom-shoe.png";
+                if (itemName.includes('blazer') || itemName.includes('jacket') || itemName.includes('coat')) return "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?q=80&w=400&auto=format&fit=crop";
+                if (itemName.includes('top')) return "/meetingcptop.png";
+                return item.image_url && !item.image_url.includes('placeholder') && item.image_url.startsWith('http') ? item.image_url : "/meetingcptop.png";
+              }
+              return item;
+            });
+          }
+          return ["/meetingcptop.png", "/custom-jeans.png", "/custom-shoe.png"];
+        };
+
+        outfits.forEach(outfit => {
+          const isBeti = currentInput.toLowerCase().includes('beti') || currentInput.toLowerCase().includes('lehenga');
+          newMessages.push({
+            type: 'proposal',
+            title: outfit.title,
+            desc: isBeti ? "Yeh aapki beti pe bahut accha lagega!" : (outfit.desc || outfit.style_agent || "Perfect outfit curated for you."),
+            items: processItemsFallback(outfit.items),
+            style_agent: isBeti ? "Yeh lehenga aapki beti pe bahut accha lagega! Iska design festival aur family gathering ke liye perfect hai." : (outfit.style_agent || outfit.desc || "Style carefully curated based on local climate and cultural trends."),
+            finance_agent: outfit.finance_agent || "Smart economical choice maximizing cost-per-wear."
+          });
+        });
+        return newMessages;
+      });
+    } catch (err) {
+      console.error("Backend fetch error", err);
+      setChatMessages(prev => [...prev, { type: 'agent', sender: 'System', text: "Error fetching recommendation." }]);
     }
-
-    // Context string for agents
-    const contextInfo = `Context: User is in ${currentLocation}. Weather is ${currentWeather}. Calendar Sync is ${isCalendarSynced ? 'ON' : 'OFF'}.`;
-
-    // 1. Stylist Speaks
-    const stylistPrompt = `You are the Style Strategist. You know the user's wardrobe. ${contextInfo} Keep it to 2 short sentences. Format casually.`;
-    const stylistResponse = await simulateAgent("Stylist", stylistPrompt, currentInput);
-    setChatMessages(prev => [...prev, { type: 'agent', sender: 'Stylist', text: stylistResponse }]);
-
-    // 2. Trend Speaks
-    const trendPrompt = `You are the Trend Agent. Suggest something trendy related to what the Stylist said, factoring in the ${currentLocation} weather (${currentWeather}). Keep it to 1 short sentence.`;
-    const trendResponse = await simulateAgent("Trend", trendPrompt, currentInput);
-    setChatMessages(prev => [...prev, { type: 'agent', sender: 'Trend', text: trendResponse }]);
-
-    // 3. Finance Speaks
-    const financePrompt = `You are the Finance Agent. Find discounts or Myntra Insider deals for the suggested items. Keep it to 1 short sentence.`;
-    const financeResponse = await simulateAgent("Finance", financePrompt, currentInput);
-    setChatMessages(prev => [...prev, { type: 'agent', sender: 'Finance', text: financeResponse }]);
 
     setIsTyping(false);
   };
@@ -346,21 +527,21 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
         <div className="premium-modal-overlay">
           <div className="premium-modal" style={{ maxWidth: '400px' }}>
             <h3 style={{ marginTop: 0, marginBottom: '20px' }}>Real-World Context</h3>
-            
+
             <div style={{ textAlign: 'left', marginBottom: '20px' }}>
               <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: '#555' }}>📍 Current Location / City</label>
-              <select 
+              <select
                 style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px' }}
                 value={tempLocation}
                 onChange={(e) => {
                   setTempLocation(e.target.value);
-                  if(e.target.value.includes('Mumbai')) setTempWeather('🌦️ 31°C, High Humidity');
-                  else if(e.target.value.includes('Delhi')) setTempWeather('🔥 38°C, Dry Heat');
+                  if (e.target.value.includes('Lucknow')) setTempWeather('☀️ 32°C, Sunny');
+                  else if (e.target.value.includes('Delhi')) setTempWeather('🔥 38°C, Dry Heat');
                   else setTempWeather('🌤️ 28°C, Breezy');
                 }}
               >
-                <option value="Indiranagar, Bengaluru (560038)">Indiranagar, Bengaluru (560038)</option>
-                <option value="Colaba, Mumbai (400001)">Colaba, Mumbai (400001)</option>
+                <option value="Eminence Bangalore (560103)">Eminence Bangalore (560103)</option>
+                <option value="Hazratganj, Lucknow (226001)">Hazratganj, Lucknow (226001)</option>
                 <option value="Connaught Place, Delhi (110001)">Connaught Place, Delhi (110001)</option>
               </select>
             </div>
@@ -380,11 +561,12 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
                 setCurrentWeather(tempWeather);
                 setIsCalendarSynced(tempCalendarSync);
                 setIsContextModalOpen(false);
-                
-                // Add a chat message saying context updated
+
+                // Add a loading message, then fetch the real feed
                 setChatMessages(prev => [...prev, {
-                  type: 'agent', sender: 'System', text: `Context successfully updated to ${tempLocation}. Weather: ${tempWeather}. Calendar Sync is ${tempCalendarSync ? 'Active' : 'Inactive'}. I will now tailor my styling advice accordingly.`
+                  type: 'agent', sender: 'System', text: `Context successfully updated to ${tempLocation}. Fetching your personalized daily feed...`
                 }]);
+                fetchFeed(tempLocation);
               }}>Save Context</button>
             </div>
           </div>
@@ -392,7 +574,7 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
       )}
 
       <div className="premium-studio-container">
-        
+
         {/* LEFT PANE: WARDROBE */}
         <div className="studio-wardrobe-pane">
           <div className="wardrobe-header">
@@ -402,8 +584,8 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
 
           <div className="wardrobe-filters">
             {availableCategories.map(f => (
-              <div 
-                key={f} 
+              <div
+                key={f}
                 className={`filter-pill ${activeFilter === f ? 'active' : ''}`}
                 onClick={() => setActiveFilter(f)}
               >
@@ -419,14 +601,6 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
             </button>
           </div>
 
-          <div className="attention-card">
-            <div className="attention-icon">!</div>
-            <div className="attention-text">
-              <h4>2 pieces need attention</h4>
-              <p>Silk Slip unworn 8 months. Restyle it today.</p>
-            </div>
-          </div>
-
           <div className="wardrobe-grid">
             {filteredWardrobe.map(item => (
               <div key={item.id} className="garment-card" onClick={() => handleGarmentClick(item)}>
@@ -438,9 +612,9 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
                 </div>
                 <div className="garment-info">
                   <h4>{item.name}</h4>
-                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
-                    <p style={{margin: 0}}>{item.brand}</p>
-                    <p style={{margin: 0, fontWeight: 'bold', color: '#111'}}>₹{item.price}</p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <p style={{ margin: 0 }}>{item.brand}</p>
+                    <p style={{ margin: 0, fontWeight: 'bold', color: '#111' }}>₹{item.price}</p>
                   </div>
                   <div className="garment-usage-bar">
                     <div className={`usage-fill ${item.status}`} style={{ width: `${item.usage}%` }}></div>
@@ -454,17 +628,17 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
         {/* CENTER PANE: MIRROR (Virtual Try-On) */}
         <div className="studio-mirror-pane">
           <div className="premium-card mirror-main-box">
-            
+
             <div className="mirror-top-controls">
               <div className="mirror-label">MIRROR</div>
               <div className="mirror-btn-row">
-                <button 
-                  className="mirror-icon-btn" 
+                <button
+                  className="mirror-icon-btn"
                   onClick={() => setShow360Slider(!show360Slider)}
                   style={{ background: show360Slider ? '#111' : 'white', color: show360Slider ? 'white' : '#111' }}
                 >↻</button>
                 <button className="mirror-icon-btn">☼</button>
-                <button 
+                <button
                   className="mirror-icon-btn"
                   onClick={handleGenerate3D}
                   style={{ background: is3DMode ? '#111' : 'white', color: is3DMode ? 'white' : '#111' }}
@@ -488,14 +662,14 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
                     style={{ width: '100%', height: '80%', marginBottom: '150px' }}
                   ></model-viewer>
                 ) : (
-                  <img 
-                    src={vtonResultImage || selectedLocalPose} 
-                    alt="Virtual Try-On Model" 
+                  <img
+                    src={vtonResultImage || selectedLocalPose}
+                    alt="Virtual Try-On Model"
                     className={`mirror-model-image ${isGeneratingVton ? 'loading-blur' : ''}`}
-                    style={{ 
-                      transform: `rotateY(${rotation}deg)`, 
-                      transition: 'transform 0.1s linear', 
-                      transformStyle: 'preserve-3d' 
+                    style={{
+                      transform: `rotateY(${rotation}deg)`,
+                      transition: 'transform 0.1s linear',
+                      transformStyle: 'preserve-3d'
                     }}
                     onError={(e) => {
                       e.target.style.display = 'none';
@@ -505,8 +679,8 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
                   />
                 )
               ) : (
-                <div 
-                  className="mirror-empty-state" 
+                <div
+                  className="mirror-empty-state"
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#282c3f', flexDirection: 'column', padding: '20px', cursor: 'pointer' }}
                   onClick={() => fileInputRef.current.click()}
                 >
@@ -518,19 +692,19 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
                   </button>
                 </div>
               )}
-              
+
               {show360Slider && (vtonResultImage || selectedLocalPose) && (
                 <div style={{
-                  position: 'absolute', bottom: '15px', left: '50%', transform: 'translateX(-50%)', 
-                  background: 'rgba(255,255,255,0.95)', padding: '12px 24px', borderRadius: '30px', 
-                  display: 'flex', alignItems: 'center', gap: '15px', boxShadow: '0 8px 25px rgba(0,0,0,0.1)', 
+                  position: 'absolute', bottom: '15px', left: '50%', transform: 'translateX(-50%)',
+                  background: 'rgba(255,255,255,0.95)', padding: '12px 24px', borderRadius: '30px',
+                  display: 'flex', alignItems: 'center', gap: '15px', boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
                   zIndex: 20, backdropFilter: 'blur(10px)', border: '1px solid #f0f0f0'
                 }}>
-                  <span style={{fontSize: '11px', fontWeight: '700', letterSpacing: '1px', color: '#111'}}>360° VIEW</span>
-                  <input 
-                    type="range" min="0" max="360" value={rotation} 
-                    onChange={(e) => setRotation(e.target.value)} 
-                    style={{width: '180px', accentColor: '#111', cursor: 'ew-resize'}} 
+                  <span style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '1px', color: '#111' }}>360° VIEW</span>
+                  <input
+                    type="range" min="0" max="360" value={rotation}
+                    onChange={(e) => setRotation(e.target.value)}
+                    style={{ width: '180px', accentColor: '#111', cursor: 'ew-resize' }}
                   />
                 </div>
               )}
@@ -541,14 +715,14 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
                   <p>Applying garment...</p>
                 </div>
               )}
-              
+
               {(selectedLocalPose && !showPoseSelector) && wornItems.map((item, idx) => {
                 let tagClass = "tag-pos-middle";
                 const cat = (item.category || "").toLowerCase();
                 if (cat.includes("top") || cat.includes("kurta") || cat.includes("shirt")) tagClass = "tag-pos-top";
                 if (cat.includes("bottom") || cat.includes("trouser") || cat.includes("saree") || cat.includes("set")) tagClass = "tag-pos-bottom";
                 if (cat.includes("shoe") || cat.includes("footwear")) tagClass = "tag-pos-feet";
-                
+
                 return (
                   <div key={item.id} className={`floating-garment-tag ${tagClass}`}>
                     <img src={item.image} alt={item.name} className="tag-thumb" />
@@ -589,7 +763,7 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
                   }}>
                     Share Getup to Squad
                   </button>
-                  <button className="premium-btn-secondary full-width" onClick={() => { 
+                  <button className="premium-btn-secondary full-width" onClick={() => {
                     if (addToCart) {
                       const getupItem = {
                         id: 'vton_getup_' + Date.now(),
@@ -603,12 +777,12 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
                       };
                       addToCart(getupItem, 'M', 'Mixed', false);
                     }
-                    alert('Added Getup to My Bag!'); 
-                    setShowShareOptions(false); 
+                    alert('Added Getup to My Bag!');
+                    setShowShareOptions(false);
                   }}>
                     Add Getup to My Bag
                   </button>
-                  <button style={{background:'transparent', border:'none', cursor:'pointer', marginTop:'5px', color:'#888'}} onClick={(e) => {e.stopPropagation(); setShowShareOptions(false);}}>
+                  <button style={{ background: 'transparent', border: 'none', cursor: 'pointer', marginTop: '5px', color: '#888' }} onClick={(e) => { e.stopPropagation(); setShowShareOptions(false); }}>
                     Close
                   </button>
                 </div>
@@ -655,7 +829,7 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
             <div className="weather-badge" style={{ background: '#f3f0ff', color: '#5f3dc4', padding: '6px 12px', borderRadius: '15px', fontSize: '11px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '5px' }}>
               📍 {currentLocation.split(',')[0]}
             </div>
-            <button 
+            <button
               onClick={() => setIsContextModalOpen(true)}
               style={{ marginLeft: 'auto', background: 'white', border: '1px solid #ddd', padding: '6px 12px', borderRadius: '15px', fontSize: '11px', fontWeight: '600', cursor: 'pointer' }}
             >
@@ -665,55 +839,158 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
 
           <div className="chat-messages">
             {chatMessages.map((msg, idx) => {
-              if (msg.type === 'system-intro') {
+              if (msg.type === 'greeting') {
                 return (
-                  <div key={idx} className="chat-message system">
-                    <p>Morning, Sarah! It's a sunny 24°C weekend ahead. Since you're heading to the outdoor music festival at 15:00, I've curated a comfortable yet chic festival look. I paired your new <span className="highlight-text">Crochet Lace Top</span> with those <span className="highlight-text">Baggy Jeans</span> for effortless movement, and added the Fastrack Shades to keep you looking sharp all day.</p>
-                    <p style={{marginTop: 15, fontSize: 12, color: '#666'}}>Click "Apply to mirror" below to see the full look.</p>
+                  <div key={idx} style={{ fontSize: '15px', color: '#111', lineHeight: '1.5', marginBottom: '16px' }}>
+                    {msg.text}
+                  </div>
+                );
+              }
+              if (msg.type === 'context-pill') {
+                return (
+                  <div key={idx} style={{ display: 'inline-flex', background: '#fff', border: '1px solid #eee', borderRadius: '30px', padding: '8px 16px', gap: '12px', fontSize: '12px', color: '#555', marginBottom: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)', alignItems: 'center' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>📍 {msg.location}</span>
+                    <span style={{ width: '1px', height: '12px', background: '#ddd' }}></span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>🌡️ {msg.temp}</span>
+                    <span style={{ width: '1px', height: '12px', background: '#ddd' }}></span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>☁️ {msg.weather}</span>
+                  </div>
+                );
+              }
+              if (msg.type === 'schedule') {
+                return (
+                  <div key={idx} style={{ background: '#fff', border: '1px solid #eee', borderRadius: '16px', padding: '16px', marginBottom: '24px', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
+                    {msg.events.map((ev, i) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: i === msg.events.length - 1 ? '0' : '12px', fontSize: '13px' }}>
+                        <div style={{ display: 'flex', gap: '12px', color: '#111', fontWeight: '500' }}>
+                          <span style={{ color: '#7c3aed' }}>📅</span>
+                          <span><strong>{ev.date ? `${ev.date}, ` : ''}{ev.time}</strong> {ev.title}</span>
+                        </div>
+                        <div style={{ color: '#888' }}>{ev.desc}</div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              }
+              if (msg.type === 'section-title') {
+                return (
+                  <div key={idx} style={{ fontSize: '14px', color: '#333', marginBottom: '12px', fontWeight: '500' }}>
+                    {msg.text}
                   </div>
                 );
               }
               if (msg.type === 'proposal') {
                 return (
                   <div key={idx} className="proposal-card">
-                    <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=400&auto=format&fit=crop" alt="Outfit Layout" className="proposal-image" />
-                    <div className="proposal-details">
-                      <h4>Weekend Festival • Lace & Denim</h4>
+                    <div className="proposal-top-row">
                       <div className="proposal-items">
-                        <img src="/custom-top.png" alt="Top" />
-                        <img src="/custom-jeans.png" alt="Jeans" />
-                        <img src="/custom-sunglasses.png" alt="Sunglasses" />
-                        <img src="/custom-shoe.png" alt="Shoes" />
+                        {msg.items && msg.items.length > 0 ? (
+                          msg.items.map((img, i) => <img key={i} src={img} alt="Item" />)
+                        ) : (
+                          <>
+                            <img src="/custom-top.png" alt="Top" />
+                            <img src="/custom-jeans.png" alt="Jeans" />
+                            <img src="/custom-shoe.png" alt="Shoes" />
+                          </>
+                        )}
                       </div>
-                      <div className="proposal-actions">
-                        <button className="premium-btn-primary full-width" onClick={() => {
-                          const top = wardrobeItems.find(i => i.id === 1);
-                          const jeans = wardrobeItems.find(i => i.id === 2);
-                          const glasses = wardrobeItems.find(i => i.id === 3);
-                          const shoes = wardrobeItems.find(i => i.id === 4);
-                          
-                          setSelectedLocalPose(localPoses[0].image);
-                          setWornItems([top, jeans, glasses, shoes]);
-                          setIsGeneratingVton(true);
-                          setTimeout(() => {
-                            setVtonResultImage('/top_jeans_glass_shoes.png');
-                            setIsGeneratingVton(false);
-                          }, 1500);
-                        }}>Apply to mirror</button>
-                        <button className="premium-btn-secondary full-width">Alternatives</button>
+                      <div className="proposal-info">
+                        <div className="proposal-info-header">
+                          <h4>{msg.title}</h4>
+                          <span className="proposal-badge" style={{ background: msg.badgeColor || '#f3e8ff' }}>{msg.badge}</span>
+                        </div>
+                        <p className="proposal-desc">
+                          {msg.desc}
+                        </p>
                       </div>
                     </div>
+                    <div className="proposal-actions">
+                      <button className="premium-btn-primary" onClick={() => {
+                        const top = wardrobeItems.find(i => i.id === 1);
+                        const jeans = wardrobeItems.find(i => i.id === 2);
+                        const glasses = wardrobeItems.find(i => i.id === 3);
+                        const shoes = wardrobeItems.find(i => i.id === 4);
+
+                        setSelectedLocalPose(localPoses ? localPoses[0].image : "/pose1 (3).png");
+                        setWornItems([top, jeans, glasses, shoes]);
+                        setIsGeneratingVton(true);
+                        setTimeout(() => {
+                          setVtonResultImage('/top_jeans_glass_shoes.png');
+                          setIsGeneratingVton(false);
+                        }, 1500);
+                      }}>👕 Try on</button>
+                      <button className="premium-btn-secondary" onClick={() => setExpandedAgents(prev => ({ ...prev, [msg.title]: !prev[msg.title] }))}>
+                        💬 Agent
+                      </button>
+                    </div>
+                    {expandedAgents[msg.title] && (
+                      <div className="proposal-agents" style={{ background: '#f8f8f8', padding: '12px', borderRadius: '12px', marginTop: '12px', fontSize: '12px', border: '1px solid #eee' }}>
+                        <div style={{ marginBottom: '8px' }}><strong>✧ Style Agent:</strong> {msg.style_agent || `Perfect mix of cultural vibe and comfort for the ${msg.title ? msg.title.split('•')[0] : 'event'}!`}</div>
+                        <div style={{ color: '#7c3aed' }}><strong>🛍 Finance Agent:</strong> {msg.finance_agent || 'Found a similar premium style on Myntra for 30% less! A smart financial choice.'}</div>
+                      </div>
+                    )}
                   </div>
                 );
               }
+              if (msg.type === 'cultural-event') {
+                return (
+                  <div key={idx} style={{ background: '#f4f5fd', borderRadius: '24px', padding: '24px', marginBottom: '24px', border: '1px solid #eef0fa' }}>
+                    <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+                      <span style={{ fontSize: '20px' }}>🎉</span>
+                      <div>
+                        <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', color: '#111' }}>{msg.title}</h3>
+                        <div style={{ fontSize: '12px', color: '#666', marginBottom: '8px' }}>{msg.time}</div>
+                        <p style={{ margin: '0', fontSize: '13px', color: '#444', lineHeight: '1.4' }}>{msg.desc}</p>
+                      </div>
+                    </div>
+
+                    {msg.looks.map((look, i) => (
+                      <div key={i} className="proposal-card">
+                        <div className="proposal-top-row">
+                          <div className="proposal-items">
+                            {look.items && look.items.length > 0 ? (
+                              look.items.map((img, i) => <img key={i} src={img} alt="Item" />)
+                            ) : (
+                              <>
+                                <img src="/custom-top.png" alt="Top" />
+                                <img src="/custom-jeans.png" alt="Jeans" />
+                                <img src="/custom-shoe.png" alt="Shoes" />
+                              </>
+                            )}
+                          </div>
+                          <div className="proposal-info">
+                            <div className="proposal-info-header">
+                              <h4>{look.title}</h4>
+                              <span className="proposal-badge">{look.badge}</span>
+                            </div>
+                            <p className="proposal-desc">{look.desc}</p>
+                          </div>
+                        </div>
+                        <div className="proposal-actions">
+                          <button className="premium-btn-primary" onClick={() => { }}>👕 Try on</button>
+                          <button className="premium-btn-secondary" onClick={() => setExpandedAgents(prev => ({ ...prev, [look.title]: !prev[look.title] }))}>
+                            💬 Agent
+                          </button>
+                        </div>
+                        {expandedAgents[look.title] && (
+                          <div className="proposal-agents" style={{ background: '#f8f8f8', padding: '12px', borderRadius: '12px', marginTop: '12px', fontSize: '12px', border: '1px solid #eee' }}>
+                            <div style={{ marginBottom: '8px' }}><strong>✧ Style Agent:</strong> {look.style_agent || `Perfect mix of cultural vibe and comfort for the ${look.title ? look.title.split('•')[0] : 'event'}!`}</div>
+                            <div style={{ color: '#7c3aed' }}><strong>🛍 Finance Agent:</strong> {look.finance_agent || 'Found a similar premium style on Myntra for 30% less! A smart financial choice.'}</div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                );
+              }
+
               if (msg.type === 'alert') {
                 return (
                   <div key={idx} className="before-you-buy-card">
                     <div className="before-you-buy-header">
-                      <span>🛍</span> BEFORE YOU BUY
+                      <span style={{ fontSize: '14px' }}>🛍️</span> BEFORE YOU BUY
                     </div>
-                    <p>You already own the <span className="highlight-text">COS Tapered Trouser</span> in a near-identical cut — pair it 4 ways before duplicating.</p>
-                    <button className="premium-btn-secondary full-width" style={{background: '#f0eaff', color: '#5a4bda', borderColor: 'transparent'}}>Show pairings</button>
+                    <p>{msg.text}</p>
                   </div>
                 );
               }
@@ -732,11 +1009,11 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
                       </ul>
                     </div>
                     <p style={{ fontSize: 13, marginBottom: 15, color: '#444', lineHeight: 1.5 }}>Tracking this local context and <strong>real-time checkout velocity</strong>, <span className="highlight-text">{msg.trend || 'Festive Kurtas'}</span> are highly trending. Creator trends show a 40% spike in styling this locally.</p>
-                    <button className="premium-btn-secondary full-width" style={{background: '#fff4e6', color: '#e67700', borderColor: 'transparent', fontSize: 12}}>Sync Catalog to {msg.location || currentLocation}</button>
+                    <button className="premium-btn-secondary full-width" style={{ background: '#fff4e6', color: '#e67700', borderColor: 'transparent', fontSize: 12 }}>Sync Catalog to {msg.location || currentLocation}</button>
                   </div>
                 );
               }
-              
+
               if (msg.type === 'presentation-proposal') {
                 return (
                   <div key={idx} className="proposal-card">
@@ -762,43 +1039,48 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
                   </div>
                 );
               }
-              
+
               // Dynamic messages
               return (
                 <div key={idx} className={`chat-message ${msg.type === 'user' ? 'user-msg' : 'agent-msg'}`}>
-                  {msg.type !== 'user' && <div className="message-sender" style={{fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: '#888', marginBottom: 4}}>{msg.sender}</div>}
-                  {msg.type === 'user' && <div className="message-sender" style={{fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: '#111', marginBottom: 4, textAlign: 'right'}}>{msg.sender}</div>}
-                  <p style={{background: msg.type === 'user' ? '#f5f5f5' : 'transparent', padding: msg.type === 'user' ? '12px 16px' : 0, borderRadius: msg.type === 'user' ? '16px 16px 0 16px' : 0, marginLeft: msg.type === 'user' ? 'auto' : 0, display: 'inline-block', maxWidth: '90%'}}>
+                  {msg.type !== 'user' && <div className="message-sender" style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: '#888', marginBottom: 4 }}>{msg.sender}</div>}
+                  {msg.type === 'user' && <div className="message-sender" style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: '#111', marginBottom: 4, textAlign: 'right' }}>{msg.sender}</div>}
+                  <p style={{ background: msg.type === 'user' ? '#f5f5f5' : 'transparent', padding: msg.type === 'user' ? '12px 16px' : 0, borderRadius: msg.type === 'user' ? '16px 16px 0 16px' : 0, marginLeft: msg.type === 'user' ? 'auto' : 0, display: 'inline-block', maxWidth: '90%' }}>
                     {msg.text}
                   </p>
                 </div>
               );
             })}
-            
+
             {isTyping && (
               <div className="chat-message agent-msg">
-                <p style={{color: '#888', fontStyle: 'italic'}}>The Crew is typing...</p>
+                <p style={{ color: '#888', fontStyle: 'italic' }}>The Crew is typing...</p>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          <form className="chat-input-area" onSubmit={handleSendMessage}>
+          <div className="chat-input-area">
             <div className="suggestion-chips">
-              <span onClick={() => {setInputText("Travelling to Mumbai");}}>📍 Travelling to Mumbai</span>
-              <span onClick={() => {setInputText("Add event: Office Offsite");}}>📅 Add event: Office Offsite</span>
-              <span onClick={() => {setInputText("Style for office");}}>Style for office</span>
+              <span onClick={() => setInputText("Style me for office")}>Style me for office</span>
+              <span onClick={() => setInputText("Mujhe meri beti ke liye lehenga dekhna hai")}>Mujhe meri beti ke liye lehenga dekhna hai</span>
+              <span onClick={() => setInputText("I need something for a cultural event")}>Shopping for a cultural event</span>
             </div>
-            <div className="chat-input-box">
-              <input 
-                type="text" 
-                placeholder="Ask your stylist anything..." 
+
+            <form onSubmit={handleSendMessage} className="chat-input-box">
+              <span style={{ display: 'flex', alignItems: 'center', marginRight: '10px', color: '#888' }}>✨</span>
+              <input
+                type="text"
+                placeholder="Ask, or name a city..."
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
+                disabled={isTyping}
               />
-              <button type="submit" className="send-btn" disabled={isTyping || !inputText.trim()}>↑</button>
-            </div>
-          </form>
+              <button type="submit" className="send-btn" disabled={!inputText.trim() || isTyping}>
+                {isTyping ? '...' : '↑'}
+              </button>
+            </form>
+          </div>
         </div>
       </div>
 
@@ -808,7 +1090,7 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
             <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#333' }}>Select Squad to share getup with</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '300px', overflowY: 'auto' }}>
               {(squads || []).map(squad => (
-                <button 
+                <button
                   key={squad.id}
                   style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '12px', border: '1px solid #eee', borderRadius: '8px', background: 'transparent', cursor: 'pointer', textAlign: 'left' }}
                   onClick={() => {
@@ -829,7 +1111,7 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
                 </button>
               ))}
             </div>
-            <button 
+            <button
               style={{ marginTop: '15px', width: '100%', padding: '10px', background: '#ff3f6c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
               onClick={() => { setShowSquadModal(false); setGetupToShare(null); }}
             >

@@ -14,4 +14,6 @@ urlpatterns = [
     path('squads/<int:squad_id>/', views.squad_detail),
     path('squads/<int:squad_id>/items/', views.squad_items),
     path('squads/<int:squad_id>/comments/', views.squad_comments),
+    path('stylist/feed/', views.daily_stylist_feed),
+    path('stylist/recommend/', views.recommend_outfit),
 ]

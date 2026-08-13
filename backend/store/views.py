@@ -223,3 +223,47 @@ def virtual_try_on(request):
         print("VTON VIEW ERROR TRACEBACK:")
         print(traceback.format_exc())
         return Response({'error': str(e)}, status=500)
+
+@api_view(['POST'])
+def sync_cart(request):
+    return Response({'message': 'Cart synced'})
+
+@api_view(['GET', 'POST'])
+def squad_list_create(request):
+    return Response([])
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def squad_detail(request, squad_id):
+    return Response({})
+
+@api_view(['GET', 'POST'])
+def squad_items(request, squad_id):
+    return Response([])
+
+@api_view(['GET', 'POST'])
+def squad_comments(request, squad_id):
+    return Response([])
+
+@api_view(['GET'])
+def daily_stylist_feed(request):
+    try:
+        from .agents.stylist_agent import generate_daily_feed
+        # In a real app, pass request.user
+        location = request.GET.get('location', 'Indiranagar, Bengaluru (560038)')
+        feed_data = generate_daily_feed(user=None, location_str=location)
+        return Response(feed_data)
+    except Exception as e:
+        import traceback
+        return Response({'error': str(e), 'traceback': traceback.format_exc()}, status=500)
+
+@api_view(['POST'])
+def recommend_outfit(request):
+    try:
+        from .agents.stylist_agent import generate_recommendation
+        query = request.data.get('query', '')
+        location = request.data.get('location', 'Indiranagar, Bengaluru (560038)')
+        recommendation = generate_recommendation(query, location)
+        return Response(recommendation)
+    except Exception as e:
+        import traceback
+        return Response({'error': str(e), 'traceback': traceback.format_exc()}, status=500)

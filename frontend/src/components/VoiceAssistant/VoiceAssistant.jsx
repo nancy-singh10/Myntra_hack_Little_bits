@@ -8,8 +8,9 @@ const VoiceAssistant = () => {
   const [isListening, setIsListening] = useState(false);
   const [statusText, setStatusText] = useState('Discover the capabilities of Conversational Agents powered by VoiceAI');
   const [inputText, setInputText] = useState('');
+  const [audioLevel, setAudioLevel] = useState(0);
   const navigate = useNavigate();
-  
+
   const audioRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -23,7 +24,7 @@ const VoiceAssistant = () => {
         setStatusText('API Key missing');
         return;
       }
-      
+
       setStatusText('Speaking...');
 
       const response = await fetch('https://api.sarvam.ai/text-to-speech', {
@@ -101,6 +102,7 @@ const VoiceAssistant = () => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
       setIsListening(false);
+      setAudioLevel(0);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     }
   };
@@ -121,11 +123,12 @@ const VoiceAssistant = () => {
       mediaRecorder.onstop = () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         transcribeAudio(audioBlob);
-        
+
         stream.getTracks().forEach(track => track.stop());
         if (audioContextRef.current) {
           audioContextRef.current.close();
         }
+        setAudioLevel(0);
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
       };
 
@@ -144,7 +147,7 @@ const VoiceAssistant = () => {
 
       const bufferLength = analyser.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
-      
+
       let silenceStart = performance.now();
       let hasSpoken = false;
       const recordingStartTime = performance.now();
@@ -159,6 +162,7 @@ const VoiceAssistant = () => {
           sum += dataArray[i];
         }
         const average = sum / bufferLength;
+        setAudioLevel(average);
         const now = performance.now();
 
         // Hard timeout: Always stop after 15 seconds max to prevent getting stuck
@@ -182,7 +186,7 @@ const VoiceAssistant = () => {
         }
         rafRef.current = requestAnimationFrame(checkAudioLevel);
       };
-      
+
       checkAudioLevel();
 
     } catch (err) {
@@ -231,13 +235,13 @@ const VoiceAssistant = () => {
   const processCommand = async (command) => {
     console.log("VOICE TRANSCRIPT:", command);
     setStatusText('Thinking...');
-    
+
     try {
       const userMessage = { role: "user", content: command };
       const apiMessages = [
         {
           role: "system",
-          content: "You are Myntra's conversational AI assistant. You help users shop. Respond in Hinglish or English based on the user's input language. ALWAYS output your response as a valid JSON object EXACTLY matching this schema, with no markdown formatting or backticks: {\"reply\": \"Your conversational response spoken back to the user\", \"action\": \"one of: [filter-price, add-to-bag, add-to-wishlist, place-order, deliver-here, navigate-search, navigate-cart, navigate-wishlist, navigate-home, none]\", \"searchQuery\": \"if navigate-search or filter-price or add-to-bag, the item to search (e.g. 'saree', 'kurta'), else null\", \"maxPrice\": \"if filter-price, the maximum price as an integer, else null\"}"
+          content: "You are Myntra's conversational AI assistant. You help users shop. You MUST reply in the EXACT SAME LANGUAGE the user speaks (e.g., if they speak Hindi, reply in Hindi. If English, reply in English). ALWAYS output your response as a valid JSON object EXACTLY matching this schema, with no markdown formatting or backticks: {\"reply\": \"Your conversational response spoken back to the user\", \"action\": \"one of: [filter-price, add-to-bag, add-to-wishlist, place-order, deliver-here, navigate-search, navigate-cart, navigate-wishlist, navigate-home, none]\", \"searchQuery\": \"if navigate-search or filter-price or add-to-bag, the item to search (e.g. 'saree', 'kurta'), else null\", \"maxPrice\": \"if filter-price, the maximum price as an integer, else null\"}"
         },
         ...chatHistoryRef.current,
         userMessage
@@ -250,39 +254,39 @@ const VoiceAssistant = () => {
           'api-subscription-key': apiKey
         },
         body: JSON.stringify({
-          model: "sarvam-30b",
+          model: "sarvam-105b-conversations",
           messages: apiMessages
         })
       });
 
       const data = await response.json();
-      
+
       if (data && data.choices && data.choices.length > 0) {
         let responseText = data.choices[0].message.content;
-        
+
         // Robust JSON extraction: Find the first { and last } to ignore conversational filler
         const firstBrace = responseText.indexOf('{');
         const lastBrace = responseText.lastIndexOf('}');
-        
+
         if (firstBrace !== -1 && lastBrace !== -1) {
           responseText = responseText.substring(firstBrace, lastBrace + 1);
         }
-        
+
         try {
           const intent = JSON.parse(responseText);
           console.log("LLM INTENT:", intent);
-          
+
           // Update conversation history
           chatHistoryRef.current.push(userMessage);
           chatHistoryRef.current.push({ role: "assistant", content: responseText });
-          
+
           // Keep only the last 10 messages (5 conversational turns) to avoid blowing up the context window
           if (chatHistoryRef.current.length > 10) {
             chatHistoryRef.current = chatHistoryRef.current.slice(-10);
           }
-          
+
           let action = intent.action;
-          
+
           // Contextual Awareness: If they ask to add to bag/wishlist, but they aren't on a product details page,
           // we can't add a generic "kurta" to the bag. We must navigate them to search for it first.
           const isOnProductPage = window.location.pathname.includes('/product/');
@@ -295,9 +299,9 @@ const VoiceAssistant = () => {
               action = 'none';
             }
           }
-          
+
           speakSarvam(intent.reply);
-          
+
           if (action === 'navigate-search' && intent.searchQuery) {
             simulateTypingAndNavigate(intent.searchQuery, `/search?q=${intent.searchQuery}`);
           } else if (action === 'filter-price' && intent.searchQuery && intent.maxPrice) {
@@ -316,10 +320,12 @@ const VoiceAssistant = () => {
         } catch (parseError) {
           console.error("Failed to parse LLM JSON:", parseError, responseText);
           speakSarvam("Sorry, I got confused processing that.");
+          setStatusText(`Error parsing: ${responseText.substring(0, 50)}...`);
         }
       } else {
         console.error("Invalid LLM response:", data);
         speakSarvam("I'm having trouble connecting to my brain right now.");
+        setStatusText(`API Error: ${JSON.stringify(data).substring(0, 50)}...`);
       }
     } catch (error) {
       console.error("Error calling Sarvam Chat API:", error);
@@ -361,11 +367,16 @@ const VoiceAssistant = () => {
         </div>
 
         <div className="orb-container">
-          <div 
+          <div
             className={`orb ${isListening ? 'listening' : ''}`}
             onClick={toggleListening}
+            style={isListening ? {
+              boxShadow: `0 0 ${audioLevel}px ${audioLevel / 2}px rgba(255, 63, 108, 0.6)`,
+              transform: `scale(${1 + audioLevel / 200})`,
+              transition: 'transform 0.1s ease-out, box-shadow 0.1s ease-out'
+            } : {}}
           >
-            <div className="orb-inner" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+            <div className="orb-inner" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {isListening ? <Square fill="currentColor" size={20} /> : <Mic size={24} />}
             </div>
           </div>
@@ -376,9 +387,9 @@ const VoiceAssistant = () => {
         </div>
 
         <form className="input-area" onSubmit={handleTextSubmit}>
-          <input 
-            type="text" 
-            placeholder="Or send a message..." 
+          <input
+            type="text"
+            placeholder="Or send a message..."
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
           />
@@ -386,12 +397,12 @@ const VoiceAssistant = () => {
         </form>
       </div>
 
-      <button 
+      <button
         className="fab-button"
         onClick={() => setIsOpen(!isOpen)}
         title="Open Voice Assistant"
       >
-        <span className="mic-icon" style={{display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff3f6c'}}><Mic size={28} /></span>
+        <span className="mic-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff3f6c' }}><Mic size={28} /></span>
       </button>
 
       <audio ref={audioRef} style={{ display: 'none' }} />
