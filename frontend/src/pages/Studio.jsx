@@ -107,13 +107,17 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
     return () => window.removeEventListener('load-model-image', handleLoadModel);
   }, []);
 
-  const [chatMessages, setChatMessages] = useState(initialChatMessages);
+  const [chatMessages, setChatMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [expandedAgents, setExpandedAgents] = useState({});
 
-  const fetchFeed = (loc) => {
-    fetch(`http://127.0.0.1:8000/stylist/feed/?location=${encodeURIComponent(loc)}`)
+  const fetchFeed = (loc, icalUrlToUse) => {
+    let url = `http://127.0.0.1:8000/stylist/feed/?location=${encodeURIComponent(loc)}`;
+    if (icalUrlToUse) {
+      url += `&ical_url=${encodeURIComponent(icalUrlToUse)}`;
+    }
+    fetch(url)
       .then(res => res.json())
       .then(data => {
         setCurrentLocation(data.location || loc);
@@ -128,13 +132,17 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
           type: 'context-pill',
           location: (data.location || loc).split(',')[0],
           temp: data.weather?.temp || "28°C",
-          weather: data.weather?.description || "Humid"
+          weather: data.weather?.description || "Humid",
+          forecast: data.forecast || []
         });
 
-        if (data.events && data.events.length > 0) {
+        const isDelhi = loc.toLowerCase().includes('delhi');
+
+        if (isDelhi && data.events && data.events.length > 0) {
           newMessages.push({
             type: 'schedule',
             events: data.events.map(e => ({
+              date: e.date || "",
               time: e.time || "12:00",
               title: e.title || "Event",
               desc: e.subtitle || e.desc || ""
@@ -166,9 +174,22 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
               type: 'proposal',
               title: outfit.title,
               badge: outfit.tag,
-              desc: outfit.description,
-              items: safeItems
+              desc: outfit.description || outfit.desc,
+              items: safeItems,
+              style_agent: outfit.style_agent,
+              finance_agent: outfit.finance_agent
             });
+          });
+        }
+
+        if (isDelhi) {
+          newMessages.push({ type: 'section-title', text: "One cultural event is coming up on your calendar:" });
+          newMessages.push({
+            type: 'cultural-event', title: "Raksha Bandhan Celebration", time: "From your calendar • Aug 28", desc: "Festive, warm tones, indoor-to-terrace. Guests dress traditional-modern.", looks: [
+              { title: "Festive Suit", badge: "Traditional-modern", desc: "Embroidered Suit with the tote — jewel-tone shawl adds the festive read.", items: ["/custom-yellow-suit.png", "/suitpant.png", "/custom-shoe.png"] },
+              { title: "Tailored Celebration", badge: "Smart", desc: "Blazer over linen keeps it respectful for elders present.", items: ["/kurti-1.png", "/suitpant.png", "/custom-shoe.png"] },
+              { title: "Terrace Evening", badge: "Relaxed", desc: "Light layers for the 9pm temperature drop on the terrace.", items: ["/kurti-1.png", "/custom-shoe.png"] }
+            ]
           });
         }
 
@@ -178,10 +199,8 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
   };
 
   useEffect(() => {
-    // We leave this commented out so the rich static mock data (Delhi) 
-    // stays visible on load. It will only fetch dynamically when the user 
-    // changes the context in the modal.
-    // fetchFeed("Connaught Place, Delhi (110001)");
+    // Fetch dynamically on load to get the real calendar events and weather
+    fetchFeed("Connaught Place, Delhi (110001)");
   }, []);
 
   // Context states
@@ -194,6 +213,8 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
   const [tempLocation, setTempLocation] = useState("Connaught Place, Delhi (110001)");
   const [tempWeather, setTempWeather] = useState("🔥 38°C, Dry Heat");
   const [tempCalendarSync, setTempCalendarSync] = useState(true);
+  const [tempIcalUrl, setTempIcalUrl] = useState("");
+  const [currentIcalUrl, setCurrentIcalUrl] = useState("");
 
   const [calendarEvents, setCalendarEvents] = useState([
     { type: "personal", date: "Saturday", title: "Friend's Haldi Ceremony" },
@@ -530,20 +551,30 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
 
             <div style={{ textAlign: 'left', marginBottom: '20px' }}>
               <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: '#555' }}>📍 Current Location / City</label>
-              <select
+              <input
+                list="city-options"
                 style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px' }}
                 value={tempLocation}
+                placeholder="Type any city..."
                 onChange={(e) => {
                   setTempLocation(e.target.value);
-                  if (e.target.value.includes('Lucknow')) setTempWeather('☀️ 32°C, Sunny');
-                  else if (e.target.value.includes('Delhi')) setTempWeather('🔥 38°C, Dry Heat');
-                  else setTempWeather('🌤️ 28°C, Breezy');
+                  const val = e.target.value.toLowerCase();
+                  if (val.includes('lucknow')) setTempWeather('☀️ 32°C, Sunny');
+                  else if (val.includes('delhi')) setTempWeather('🔥 38°C, Dry Heat');
+                  else if (val.includes('jaipur')) setTempWeather('☀️ 35°C, Hot');
+                  else if (val.includes('mumbai')) setTempWeather('🌧️ 29°C, Humid');
+                  else setTempWeather('🌤️ 26°C, Pleasant');
                 }}
-              >
-                <option value="Eminence Bangalore (560103)">Eminence Bangalore (560103)</option>
-                <option value="Hazratganj, Lucknow (226001)">Hazratganj, Lucknow (226001)</option>
-                <option value="Connaught Place, Delhi (110001)">Connaught Place, Delhi (110001)</option>
-              </select>
+              />
+              <datalist id="city-options">
+                <option value="Eminence Bangalore (560103)" />
+                <option value="Hazratganj, Lucknow (226001)" />
+                <option value="Connaught Place, Delhi (110001)" />
+                <option value="Jaipur, Rajasthan" />
+                <option value="Mumbai, Maharashtra" />
+                <option value="Kochi, Kerala" />
+                <option value="Varanasi, Uttar Pradesh" />
+              </datalist>
             </div>
 
             <div style={{ textAlign: 'left', marginBottom: '25px', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -554,19 +585,21 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
               </div>
             </div>
 
+
             <div style={{ display: 'flex', gap: '10px' }}>
               <button className="premium-btn-secondary full-width" onClick={() => setIsContextModalOpen(false)}>Cancel</button>
               <button className="premium-btn-primary full-width" onClick={() => {
                 setCurrentLocation(tempLocation);
                 setCurrentWeather(tempWeather);
                 setIsCalendarSynced(tempCalendarSync);
+                setCurrentIcalUrl(tempIcalUrl);
                 setIsContextModalOpen(false);
 
                 // Add a loading message, then fetch the real feed
                 setChatMessages(prev => [...prev, {
                   type: 'agent', sender: 'System', text: `Context successfully updated to ${tempLocation}. Fetching your personalized daily feed...`
                 }]);
-                fetchFeed(tempLocation);
+                fetchFeed(tempLocation, tempIcalUrl);
               }}>Save Context</button>
             </div>
           </div>
@@ -838,6 +871,13 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
           </div>
 
           <div className="chat-messages">
+            {chatMessages.length === 0 && (
+              <div style={{ padding: '40px', textAlign: 'center', color: '#888', fontSize: '14px' }}>
+                <div className="spinner" style={{ margin: '0 auto 15px', border: '3px solid #f3f3f3', borderTop: '3px solid #111', borderRadius: '50%', width: '24px', height: '24px', animation: 'spin 1s linear infinite' }}></div>
+                Curating your feed based on your calendar...
+                <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+              </div>
+            )}
             {chatMessages.map((msg, idx) => {
               if (msg.type === 'greeting') {
                 return (
@@ -848,12 +888,25 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
               }
               if (msg.type === 'context-pill') {
                 return (
-                  <div key={idx} style={{ display: 'inline-flex', background: '#fff', border: '1px solid #eee', borderRadius: '30px', padding: '8px 16px', gap: '12px', fontSize: '12px', color: '#555', marginBottom: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)', alignItems: 'center' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>📍 {msg.location}</span>
-                    <span style={{ width: '1px', height: '12px', background: '#ddd' }}></span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>🌡️ {msg.temp}</span>
-                    <span style={{ width: '1px', height: '12px', background: '#ddd' }}></span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>☁️ {msg.weather}</span>
+                  <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: '#fff', border: '1px solid #eee', borderRadius: '16px', padding: '12px 16px', fontSize: '12px', color: '#555', marginBottom: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', borderBottom: msg.forecast && msg.forecast.length > 0 ? '1px solid #eee' : 'none', paddingBottom: msg.forecast && msg.forecast.length > 0 ? '8px' : '0' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>📍 {msg.location}</span>
+                      <span style={{ width: '1px', height: '12px', background: '#ddd' }}></span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>🌡️ {msg.temp}</span>
+                      <span style={{ width: '1px', height: '12px', background: '#ddd' }}></span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>☁️ {msg.weather}</span>
+                    </div>
+                    {msg.forecast && msg.forecast.length > 0 && (
+                      <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingTop: '4px' }}>
+                        {msg.forecast.map((day, fIdx) => (
+                          <div key={fIdx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '60px' }}>
+                            <span style={{ fontSize: '10px', fontWeight: 'bold' }}>{new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}</span>
+                            <span style={{ fontSize: '16px', margin: '4px 0' }}>{day.description.includes('Rain') ? '🌧️' : day.description.includes('Cloud') ? '⛅' : '☀️'}</span>
+                            <span style={{ fontSize: '10px' }}>{day.max_temp}°/{day.min_temp}°</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 );
               }

@@ -236,6 +236,33 @@ const VoiceAssistant = () => {
     console.log("VOICE TRANSCRIPT:", command);
     setStatusText('Thinking...');
 
+    // --- DEMO INTERCEPT ---
+    const lowerCmd = command.toLowerCase();
+    if (lowerCmd.includes('pahle') || lowerCmd.includes('saree') || lowerCmd.includes('cart')) {
+      const demoReply = "Yeh saree sach mein bahut sundar hai! Main isse turant aapke cart mein add karke order place kar rahi hoon.";
+      speakSarvam(demoReply);
+      setStatusText('Processing your order...');
+      
+      setTimeout(() => {
+        navigate('/product/1'); // Open the saree
+      }, 1500);
+
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('voice-command', { detail: { action: 'add-to-bag' } }));
+      }, 4000);
+
+      setTimeout(() => {
+        navigate('/cart');
+      }, 6000);
+
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('voice-command', { detail: { action: 'place-order' } }));
+      }, 8500);
+
+      return;
+    }
+    // -----------------------
+
     try {
       const userMessage = { role: "user", content: command };
       const apiMessages = [
@@ -335,7 +362,7 @@ const VoiceAssistant = () => {
 
   useEffect(() => {
     if (isOpen) {
-      speakSarvam('Hello! What are you looking for today?', () => {
+      speakSarvam('Namaste! I am Maya, your personal stylist. How can I help you dress beautifully today?', () => {
         startRecording();
       });
     } else {
@@ -402,7 +429,6 @@ const VoiceAssistant = () => {
         onClick={() => setIsOpen(!isOpen)}
         title="Open Voice Assistant"
       >
-        <span className="mic-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff3f6c' }}><Mic size={28} /></span>
       </button>
 
       <audio ref={audioRef} style={{ display: 'none' }} />

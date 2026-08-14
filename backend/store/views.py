@@ -250,7 +250,8 @@ def daily_stylist_feed(request):
         from .agents.stylist_agent import generate_daily_feed
         # In a real app, pass request.user
         location = request.GET.get('location', 'Indiranagar, Bengaluru (560038)')
-        feed_data = generate_daily_feed(user=None, location_str=location)
+        ical_url = request.GET.get('ical_url', None)
+        feed_data = generate_daily_feed(user=None, location_str=location, ical_url=ical_url)
         return Response(feed_data)
     except Exception as e:
         import traceback
