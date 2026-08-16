@@ -124,7 +124,7 @@ const Cart = ({
     }));
 
     if (currentSquad && typeof currentSquad.id === 'number') {
-        fetch(`http://localhost:8000/squads/${currentSquad.id}/comments/`, {
+        fetch(`https://myntra-hack-little-bits.onrender.com/squads/${currentSquad.id}/comments/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ item: itemId, user: currentUser, text })
@@ -146,7 +146,7 @@ const Cart = ({
 
   const handleCreateSquad = async (newSquadData) => {
     try {
-        const res = await fetch('http://localhost:8000/squads/', {
+        const res = await fetch('https://myntra-hack-little-bits.onrender.com/squads/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -188,7 +188,7 @@ const Cart = ({
     if (!window.confirm("Are you sure you want to delete this squad? This action cannot be undone.")) return;
     
     try {
-        const res = await fetch(`http://localhost:8000/squads/${squadId}/`, {
+        const res = await fetch(`https://myntra-hack-little-bits.onrender.com/squads/${squadId}/`, {
             method: 'DELETE'
         });
         

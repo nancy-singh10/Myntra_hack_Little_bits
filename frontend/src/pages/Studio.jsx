@@ -111,7 +111,7 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
   const [expandedAgents, setExpandedAgents] = useState({});
 
   const fetchFeed = (loc, icalUrlToUse) => {
-    let url = `http://127.0.0.1:8000/stylist/feed/?location=${encodeURIComponent(loc)}`;
+    let url = `https://myntra-hack-little-bits.onrender.com/stylist/feed/?location=${encodeURIComponent(loc)}`;
     if (icalUrlToUse) {
       url += `&ical_url=${encodeURIComponent(icalUrlToUse)}`;
     }
@@ -419,7 +419,7 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
       const detectedLocation = locationMatch ? locationMatch[1].trim() : currentInput;
 
       // Fetch from our new dynamic backend endpoint
-      fetch(`http://127.0.0.1:8000/stylist/feed/?location=${encodeURIComponent(detectedLocation)}`)
+      fetch(`https://myntra-hack-little-bits.onrender.com/stylist/feed/?location=${encodeURIComponent(detectedLocation)}`)
         .then(res => res.json())
         .then(data => {
           setCurrentLocation(data.location);
@@ -528,7 +528,7 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
 
     // Dynamic Recommendation Engine
     try {
-      const res = await fetch(`http://127.0.0.1:8000/stylist/recommend/`, {
+      const res = await fetch(`https://myntra-hack-little-bits.onrender.com/stylist/recommend/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: currentInput, location: currentLocation })

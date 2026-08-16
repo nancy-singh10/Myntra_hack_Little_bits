@@ -24,7 +24,7 @@ function App() {
   const [isCartLoaded, setIsCartLoaded] = useState(false);
   
   React.useEffect(() => {
-    fetch('http://localhost:8000/cart/sync/?user_id=mock_user_1')
+    fetch('https://myntra-hack-little-bits.onrender.com/cart/sync/?user_id=mock_user_1')
       .then(res => res.json())
       .then(data => {
         if (data.cart_data) {
@@ -40,7 +40,7 @@ function App() {
 
   React.useEffect(() => {
     if (!isCartLoaded) return;
-    fetch('http://localhost:8000/cart/sync/?user_id=mock_user_1', {
+    fetch('https://myntra-hack-little-bits.onrender.com/cart/sync/?user_id=mock_user_1', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -92,7 +92,7 @@ function App() {
   const [activeSquadId, setActiveSquadId] = useState(getInitialSquadId());
 
   React.useEffect(() => {
-    fetch('http://localhost:8000/squads/')
+    fetch('https://myntra-hack-little-bits.onrender.com/squads/')
       .then(res => res.json())
       .then(data => {
         if(data && data.length > 0) {

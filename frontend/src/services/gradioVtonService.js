@@ -1,6 +1,6 @@
 import { client } from "@gradio/client";
 
-const BACKEND_URL = "http://localhost:8000";
+const BACKEND_URL = "https://myntra-hack-little-bits.onrender.com";
 
 export const generateVirtualTryOn = async (humanImageBlob, garmentImageBlob, category = "Upper-body") => {
   try {
@@ -9,7 +9,7 @@ export const generateVirtualTryOn = async (humanImageBlob, garmentImageBlob, cat
     formData.append('user_image', humanImageBlob, 'user.jpg');
     formData.append('garment_image', garmentImageBlob, 'garment.jpg');
 
-    const response = await fetch('http://localhost:8000/try-on/', {
+    const response = await fetch('https://myntra-hack-little-bits.onrender.com/try-on/', {
       method: 'POST',
       body: formData,
     });
@@ -19,7 +19,7 @@ export const generateVirtualTryOn = async (humanImageBlob, garmentImageBlob, cat
     }
 
     const data = await response.json();
-    return `http://localhost:8000${data.tryon_image_url}`;
+    return `https://myntra-hack-little-bits.onrender.com${data.tryon_image_url}`;
   } catch (error) {
     console.error("Virtual Try-On error:", error);
     throw error;
