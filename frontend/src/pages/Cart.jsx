@@ -451,7 +451,7 @@ const Cart = ({
       <div className="cart-content">
         <div className="cart-left">
           <div className="cart-header">
-            <h3>{isSplitBagActive ? 'Split Bag' : 'My Bag'} {displayItems.length > 0 && `(${displayItems.length} item${displayItems.length > 1 ? 's' : ''})`}</h3>
+            <h3>{isSplitBagActive ? 'Shared Cart' : 'My Bag'} {displayItems.length > 0 && `(${displayItems.length} item${displayItems.length > 1 ? 's' : ''})`}</h3>
 
             <div className="bag-toggle-container">
               <button
@@ -464,7 +464,7 @@ const Cart = ({
                 className={`bag-toggle-btn ${isSplitBagActive ? 'active' : ''}`}
                 onClick={() => setIsSplitBagActive(true)}
               >
-                Split Bag
+                Shared Cart
               </button>
             </div>
 
@@ -514,7 +514,7 @@ const Cart = ({
                       <button className="back-squads-btn" onClick={() => setShowSelector(true)} style={{
                         background: '#fff', border: '1px solid #ccc', borderRadius: '4px', padding: '4px 8px', cursor: 'pointer', fontSize: '0.8rem'
                       }}>
-                        ← All Squads
+                        ← All Groups
                       </button>
                       <span className="squad-banner-badge" style={{ fontSize: '0.7rem', background: '#ff3f6c', color: 'white', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>ACTIVE SQUAD</span>
                     </div>
@@ -638,7 +638,7 @@ const Cart = ({
                     )}
                     {!isSplitBagActive && (
                       <button className="move-to-split-btn" onClick={() => handleMoveToSplitBag(item.id)}>
-                        <span>🤝</span> Move to Split Bag
+                        <span>🤝</span> Move to Shared Cart
                       </button>
                     )}
                     <div className="quantity-controls">

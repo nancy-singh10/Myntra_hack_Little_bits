@@ -288,7 +288,7 @@ const SquadSwipeGame = ({ squadName = "Ananya's Bday Squad", onClose, onFinishGa
 
             <div className="summary-actions">
               <button className="finish-btn" onClick={handleComplete}>
-                View Top Squad Picks on Home & Split Bag 🎉
+                View Top Squad Picks on Home & Shared Cart 🎉
               </button>
             </div>
           </div>

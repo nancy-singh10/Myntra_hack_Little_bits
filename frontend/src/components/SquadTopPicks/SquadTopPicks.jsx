@@ -110,7 +110,7 @@ const SquadTopPicks = ({ squadInfo, onAddToCart }) => {
                     navigate('/cart');
                   }}
                 >
-                  🤝 Add to Split Bag
+                  🤝 Add to Shared Cart
                 </button>
               </div>
             </div>

@@ -1,0 +1,11 @@
+Django>=4.2
+djangorestframework
+django-cors-headers
+daphne
+channels
+gunicorn
+whitenoise
+python-dotenv
+gradio-client
+requests
+pillow

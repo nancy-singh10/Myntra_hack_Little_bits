@@ -180,7 +180,7 @@ def virtual_try_on(request):
 
         # 1. Attempt IDM-VTON / DCI-VTON diffusion space
         try:
-            client = Client("yisol/IDM-VTON", token="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")
+            client = Client("yisol/IDM-VTON", token="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")
             result = client.predict(
                 dict={
                     'background': handle_file(temp_user_img_path),

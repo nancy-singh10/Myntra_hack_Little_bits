@@ -72,6 +72,7 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
   const [showShareOptions, setShowShareOptions] = useState(false);
   const [showSquadModal, setShowSquadModal] = useState(false);
   const [getupToShare, setGetupToShare] = useState(null);
+  const [isRemovingBackground, setIsRemovingBackground] = useState(false);
   const fileInputRef = useRef(null);
 
   const [showPoseSelector, setShowPoseSelector] = useState(false);
@@ -81,12 +82,9 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
   const [model3DUrl, setModel3DUrl] = useState(null);
   const [isGenerating3D, setIsGenerating3D] = useState(false);
 
-  // Load saved pose from localStorage on mount
+  // Disable auto-loading saved pose on mount
   useEffect(() => {
-    const savedPose = localStorage.getItem("savedModelPhoto");
-    if (savedPose) {
-      setSelectedLocalPose(savedPose);
-    }
+    // Intentionally left empty to ask user to upload an image on reload
   }, []);
 
   // Listen for external requests to load a model image into the mirror
@@ -255,9 +253,21 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
     if (file) {
       const url = URL.createObjectURL(file);
       setSelectedLocalPose(url);
-      localStorage.setItem("savedModelPhoto", url);
       setVtonResultImage(null);
       setShowPoseSelector(false);
+      setIsRemovingBackground(false);
+
+      // After 2 seconds show the removing background loader
+      setTimeout(() => {
+        setIsRemovingBackground(true);
+      }, 2000);
+
+      // Change the model image to /model_2.0.png after 8 seconds
+      setTimeout(() => {
+        setIsRemovingBackground(false);
+        setSelectedLocalPose('/model_2.0.png');
+        localStorage.setItem("savedModelPhoto", '/model_2.0.png');
+      }, 8000);
     }
   };
 
@@ -279,6 +289,37 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
 
     setIsGeneratingVton(true);
     setVtonResultImage(null);
+
+    const hasBrownTop = newWornItems.find(i => i.id === 12 || i.name === "Black Floral Top");
+    const hasBaggyJeans = newWornItems.find(i => i.id === 2 || i.name === "Baggy Jeans");
+    const hasChickenkari = newWornItems.find(i => (i.image && i.image.includes("chickenkari_top.png")) || (typeof i === 'string' && i.includes("chickenkari_top.png")));
+
+    // Mock VTON for Chickenkari Top
+    if (hasChickenkari) {
+      setTimeout(() => {
+        setVtonResultImage('/chcikenkurtamodel.jpeg');
+        setIsGeneratingVton(false);
+      }, 8000);
+      return;
+    }
+
+    // Mock VTON for Brown Top + Baggy Jeans combo
+    if (hasBrownTop && hasBaggyJeans) {
+      setTimeout(() => {
+        setVtonResultImage('/browntopjeans.png');
+        setIsGeneratingVton(false);
+      }, 3000);
+      return;
+    }
+
+    // Mock VTON for the "Black Floral Top" (which shows a brown top image)
+    if (hasBrownTop) {
+      setTimeout(() => {
+        setVtonResultImage('/browntomodel.jpeg');
+        setIsGeneratingVton(false);
+      }, 8000);
+      return;
+    }
 
     try {
       const basePose = selectedLocalPose || "/pose1 (3).png";
@@ -423,6 +464,9 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
                 return ["/lehenga_.png"];
               }
               const isLucknow = currentLocation.toLowerCase().includes('lucknow');
+              if (isLucknow && (query.includes('chickenkari') || query.includes('chikankari') || query.includes('kurta'))) {
+                return ["/chickenkari_top.png"];
+              }
               if (isLucknow) return ["/kurti-1.png", "/suitpant.png", "/custom-shoe.png"];
               return ["/meetingcptop.png", "/custom-jeans.png", "/custom-shoe.png"];
             };
@@ -494,11 +538,14 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
       setChatMessages(prev => {
         let newMessages = [...prev];
         const outfits = Array.isArray(data) ? data : (data.outfits ? data.outfits : [data]);
-        
+
         const processItemsFallback = (items) => {
           const query = currentInput.toLowerCase();
           if (query.includes('lehenga') || query.includes('beti')) {
             return ["/lehenga_.png"];
+          }
+          if (currentLocation.toLowerCase().includes('lucknow') && (query.includes('chickenkari') || query.includes('chikankari') || query.includes('kurta'))) {
+            return ["/chickenkari_top.png"];
           }
           if (items && Array.isArray(items) && items.length > 0) {
             return items.map(item => {
@@ -612,7 +659,6 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
         <div className="studio-wardrobe-pane">
           <div className="wardrobe-header">
             <h2>Wardrobe</h2>
-            <div className="wardrobe-stats">{displayItems.length} Pieces • 72% Utilization</div>
           </div>
 
           <div className="wardrobe-filters">
@@ -662,25 +708,7 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
         <div className="studio-mirror-pane">
           <div className="premium-card mirror-main-box">
 
-            <div className="mirror-top-controls">
-              <div className="mirror-label">MIRROR</div>
-              <div className="mirror-btn-row">
-                <button
-                  className="mirror-icon-btn"
-                  onClick={() => setShow360Slider(!show360Slider)}
-                  style={{ background: show360Slider ? '#111' : 'white', color: show360Slider ? 'white' : '#111' }}
-                >↻</button>
-                <button className="mirror-icon-btn">☼</button>
-                <button
-                  className="mirror-icon-btn"
-                  onClick={handleGenerate3D}
-                  style={{ background: is3DMode ? '#111' : 'white', color: is3DMode ? 'white' : '#111' }}
-                  disabled={isGenerating3D}
-                >
-                  {isGenerating3D ? '...' : '3D'}
-                </button>
-              </div>
-            </div>
+
 
 
 
@@ -700,9 +728,9 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
                     alt="Virtual Try-On Model"
                     className={`mirror-model-image ${isGeneratingVton ? 'loading-blur' : ''}`}
                     style={{
-                      transform: `rotateY(${rotation}deg)`,
+                      transform: `scale(${vtonResultImage === '/browntomodel.jpeg' ? 1.5 : 1}) translateY(${vtonResultImage === '/browntomodel.jpeg' ? '12%' : '0%'}) rotateY(${rotation}deg)`,
                       transition: 'transform 0.1s linear',
-                      transformStyle: 'preserve-3d'
+                      transformStyle: 'preserve-3d',
                     }}
                     onError={(e) => {
                       e.target.style.display = 'none';
@@ -746,6 +774,13 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
                 <div className="vton-overlay-loader">
                   <div className="spinner"></div>
                   <p>Applying garment...</p>
+                </div>
+              )}
+
+              {isRemovingBackground && (
+                <div className="vton-overlay-loader">
+                  <div className="spinner"></div>
+                  <p>Removing background...</p>
                 </div>
               )}
 
@@ -794,7 +829,7 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
                       setShowShareOptions(false);
                     }
                   }}>
-                    Share Getup to Squad
+                    Share Getup to Group
                   </button>
                   <button className="premium-btn-secondary full-width" onClick={() => {
                     if (addToCart) {
@@ -851,9 +886,7 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
             <div className="chat-avatar">✧</div>
             <div className="chat-header-info">
               <h3>Style Strategist</h3>
-              <p>Knows your closet • Suggesting for today</p>
             </div>
-            <button className="chat-history-btn">History</button>
           </div>
           <div className="context-bar" style={{ padding: '0 25px 15px', borderBottom: '1px solid #f5f5f5', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             <div className="weather-badge" style={{ background: '#f0f4ff', color: '#3b5bdb', padding: '6px 12px', borderRadius: '15px', fontSize: '11px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -959,12 +992,26 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
                     </div>
                     <div className="proposal-actions">
                       <button className="premium-btn-primary" onClick={() => {
+                        const isChikankari = msg.title.toLowerCase().includes('chikankari') || msg.items?.some(i => typeof i === 'string' && i.includes('chickenkari'));
+
+                        if (isChikankari) {
+                          setSelectedLocalPose("/pose1 (3).png");
+                          const chikankariItem = { id: 99, name: "Chikankari Kurti", image: "/chickenkari_top.png", category: "Tops" };
+                          setWornItems([chikankariItem]);
+                          setIsGeneratingVton(true);
+                          setTimeout(() => {
+                            setVtonResultImage('/chcikenkurtamodel.jpeg');
+                            setIsGeneratingVton(false);
+                          }, 8000);
+                          return;
+                        }
+
                         const top = wardrobeItems.find(i => i.id === 1);
                         const jeans = wardrobeItems.find(i => i.id === 2);
                         const glasses = wardrobeItems.find(i => i.id === 3);
                         const shoes = wardrobeItems.find(i => i.id === 4);
 
-                        setSelectedLocalPose(localPoses ? localPoses[0].image : "/pose1 (3).png");
+                        setSelectedLocalPose("/pose1 (3).png");
                         setWornItems([top, jeans, glasses, shoes]);
                         setIsGeneratingVton(true);
                         setTimeout(() => {
@@ -1140,7 +1187,7 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
       {showSquadModal && (
         <div className="squad-select-modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div className="squad-select-modal-content" style={{ background: 'white', padding: '20px', borderRadius: '8px', width: '90%', maxWidth: '400px' }}>
-            <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#333' }}>Select Squad to share getup with</h3>
+            <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#333' }}>Select Group to share getup with</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '300px', overflowY: 'auto' }}>
               {(squads || []).map(squad => (
                 <button
@@ -1179,3 +1226,4 @@ const Studio = ({ addToCart, wishlist, squads, setActiveSquadId }) => {
 };
 
 export default Studio;
+

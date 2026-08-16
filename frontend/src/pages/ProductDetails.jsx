@@ -149,7 +149,7 @@ const ProductDetails = ({ addToCart, wishlist, toggleWishlist, squads, setActive
       {showSquadModal && (
         <div className="squad-select-modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div className="squad-select-modal-content" style={{ background: 'white', padding: '20px', borderRadius: '8px', width: '90%', maxWidth: '400px' }}>
-            <h3 style={{ marginTop: 0, marginBottom: '15px' }}>Select Squad to add to</h3>
+            <h3 style={{ marginTop: 0, marginBottom: '15px' }}>Select Group to add to</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '300px', overflowY: 'auto' }}>
               {squads.map(squad => (
                 <button 

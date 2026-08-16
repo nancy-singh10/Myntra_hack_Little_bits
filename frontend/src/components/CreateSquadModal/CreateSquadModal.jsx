@@ -7,7 +7,7 @@ const CreateSquadModal = ({ onCreateSquad, onCancel }) => {
   const [copied, setCopied] = useState(false);
 
   const handleWhatsAppInvite = () => {
-    const inviteText = `Hey! Join my shopping squad "${squadName}" on Myntra to pick outfits and split the bag! 🛍️✨\n${description}`;
+    const inviteText = `Hey! Join my shopping group "${squadName}" on Myntra to pick outfits and split the bag! 🛍️✨\n${description}`;
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(inviteText)}`;
     window.open(url, '_blank');
     setCopied(true);
@@ -28,22 +28,22 @@ const CreateSquadModal = ({ onCreateSquad, onCancel }) => {
   return (
     <div className="create-squad-container">
       <div className="create-squad-card">
-        <div className="create-squad-badge">🛍️ SQUAD SHOPPING</div>
-        <h2 className="create-squad-title">Create Your Shopping Squad</h2>
+        <div className="create-squad-badge">🛍️ GROUP SHOPPING</div>
+        <h2 className="create-squad-title">Create Your Shopping Group</h2>
         <p className="create-squad-subtitle">
-          Shop together, vote on outfits, split the bill, and play the Squad Match Game with your friends!
+          Shop together, vote on outfits, split the bill, and play the Group Match Game with your friends!
         </p>
 
         <form onSubmit={handleSubmit} className="create-squad-form">
           <div className="form-group">
-            <label htmlFor="squadName">Squad Name *</label>
+            <label htmlFor="squadName">Group Name *</label>
             <input
               id="squadName"
               type="text"
               className="squad-input"
               value={squadName}
               onChange={(e) => setSquadName(e.target.value)}
-              placeholder="e.g. Ananya's Bday Squad"
+              placeholder="e.g. Ananya's Bday Group"
               required
             />
           </div>
@@ -65,7 +65,7 @@ const CreateSquadModal = ({ onCreateSquad, onCancel }) => {
               <span className="wa-icon-large">🔗</span>
               <span>Invite Friends</span>
             </div>
-            <p className="invite-box-text">Once you create your squad, you'll get a magic invite link to share with your friends!</p>
+            <p className="invite-box-text">Once you create your group, you'll get a magic invite link to share with your friends!</p>
           </div>
 
           <div className="form-actions">
@@ -75,7 +75,7 @@ const CreateSquadModal = ({ onCreateSquad, onCancel }) => {
               </button>
             )}
             <button type="submit" className="submit-squad-btn">
-              Create Squad & Enter Split Bag ✨
+              Create Group & Enter Shared Cart ✨
             </button>
           </div>
         </form>

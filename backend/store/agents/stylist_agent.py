@@ -43,7 +43,7 @@ def generate_daily_feed(user=None, location_str="Indiranagar, Bengaluru (560038)
             # Smart fallback item selection based on EVENT TITLE and weather
             if "wedding" in event_title_lower or "haldi" in event_title_lower or "marriage" in event_title_lower or "festival" in event_title_lower:
                 if "lucknow" in location_str.lower():
-                    items = [{"name": "Chikankari Kurti", "image_url": "/kurti-1.png"}, {"name": "Pant", "image_url": "/suitpant.png"}, {"name": "Flats", "image_url": "/custom-shoe.png"}]
+                    items = [{"name": "Chikankari Kurti", "image_url": "/chickenkari_top.png"}, {"name": "Pant", "image_url": "/suitpant.png"}, {"name": "Flats", "image_url": "/custom-shoe.png"}]
                     desc = f"A traditional Chikankari suit perfectly suited for the cultural '{event.get('title', '')}'."
                     style_agent_text = f"The hand-embroidered Chikankari Kurti is highly breathable for the {max_temp}°C weather and deeply matches the cultural essence of Lucknow."
                     finance_agent_text = "Handloom pieces are timeless investments that can be worn for years across various festivals."
@@ -105,7 +105,7 @@ def generate_daily_feed(user=None, location_str="Indiranagar, Bengaluru (560038)
                 "title": "Family Gathering - Chikankari",
                 "tag": "Best for 11:00",
                 "desc": "A traditional Chikankari suit perfectly suited for a cultural gathering.",
-                "items": [{"name": "Kurti", "image_url": "/kurti-1.png"}, {"name": "Pant", "image_url": "/suitpant.png"}, {"name": "Shoes", "image_url": "/custom-shoe.png"}],
+                "items": [{"name": "Kurti", "image_url": "/chickenkari_top.png"}],
                 "style_agent": "Chikankari is the soul of Lucknow. It keeps you cool and pays homage to local heritage.",
                 "finance_agent": "A timeless classic. Handloom pieces retain their cultural value over time."
             },

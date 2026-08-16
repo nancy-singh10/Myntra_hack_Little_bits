@@ -62,7 +62,12 @@ const Search = ({ wishlist, toggleWishlist }) => {
   const filteredProducts = allProducts.filter(product => {
     // Basic search query matching
     if (query && query.toLowerCase() !== 'all') {
-      const q = query.toLowerCase();
+      let q = query.toLowerCase();
+      
+      // Map Hindi terms to English
+      q = q.replace(/साड़ी/g, 'saree');
+      q = q.replace(/sari/g, 'saree');
+
       const match = product.title.toLowerCase().includes(q) || 
                     product.category.toLowerCase().includes(q) || 
                     (product.type && product.type.toLowerCase().includes(q));
